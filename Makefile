@@ -32,6 +32,7 @@ DEP = $(OBJ:.o=.d)
 
 # if the qemu installation is done via https://git.imp.fu-berlin.de/koenigl/qemu-portux
 QEMU = qemu-system-arm
+QEMU_FLAGS = -nographic -M portux920t -m 64M -piotelnet
 
 #
 # Regeln
@@ -68,4 +69,4 @@ clean:
 
 .PHONY: run
 run:
-	$(QEMU) -nographic -M portux920t -m 64M -kernel kernel
+	$(QEMU) $(QEMU_FLAGS) -kernel kernel
