@@ -3,7 +3,6 @@
 */
 
 #include <stdarg.h> // for va_list etc
-#include <stdio.h> // only for final printf (before we've implemented the serial interface)
 
 #define HEX_POSITIONS 8 // 1 hex char represents 4 bits; assuming 32bit integers
 
@@ -11,7 +10,7 @@
  * Some function that actually prints a character or sends it via the serial
  * interface
  */
-void _print(char c) { printf("%c", c); }
+void _print(char c);
 
 void _printChar(const char c);
 void _printString(const char *s);

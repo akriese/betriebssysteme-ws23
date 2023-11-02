@@ -5,6 +5,9 @@
  */
 
 #include "printf.h"
+#include <stdio.h>
+
+void _print(char c) { printf("%c", c); }
 
 int main() {
   char *someText = "Hello World!";
