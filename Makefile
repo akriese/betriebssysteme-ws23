@@ -32,7 +32,8 @@ DEP = $(OBJ:.o=.d)
 
 # if the qemu installation is done via https://git.imp.fu-berlin.de/koenigl/qemu-portux
 QEMU = qemu-system-arm
-QEMU_FLAGS = -nographic -M portux920t -m 64M -piotelnet
+QEMU_FLAGS = -nographic -M portux920t -m 64M -piotelnet \
+	     -serial unix:/tmp/serial.socket,server
 
 #
 # Regeln
