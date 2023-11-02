@@ -30,6 +30,9 @@ CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
 
 DEP = $(OBJ:.o=.d)
 
+# if the qemu installation is done via https://git.imp.fu-berlin.de/koenigl/qemu-portux
+QEMU = qemu-system-arm
+
 #
 # Regeln
 #
@@ -62,3 +65,7 @@ clean:
 	rm -f kernel kernel.bin kernel.img
 	rm -f $(OBJ)
 	rm -f $(DEP)
+
+.PHONY: run
+run:
+	$(QEMU) -nographic -M portux920t -m 64M -kernel kernel
