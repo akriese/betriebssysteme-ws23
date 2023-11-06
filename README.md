@@ -18,3 +18,5 @@ before the infinite loop.
 
 If you wish to access the serial output of the kernel in `qemu` via `minicom`,
 execute `minicom -D unix:/tmp/serial.socket` in another shell.
+
+You can also execute `make minicom` to start minicom with the right flags.
