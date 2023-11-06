@@ -31,9 +31,15 @@ CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
 DEP = $(OBJ:.o=.d)
 
 # if the qemu installation is done via https://git.imp.fu-berlin.de/koenigl/qemu-portux
+SERIAL_SOCKET = unix:/tmp/serial.socket
+SERIAL_SOCKET_MINICOM = unix\#/tmp/serial.socket
 QEMU = qemu-system-arm
 QEMU_FLAGS = -nographic -M portux920t -m 64M
-QEMU_FLAGS += -serial unix:/tmp/serial.socket,server
+
+# uncomment for serial exposure from qemu; accessible via e.g. `minicom`
+QEMU_FLAGS += -serial $(SERIAL_SOCKET),server
+
+# uncomment for telnet connection
 # QEMU_FLAGS += -piotelnet
 
 #
@@ -72,3 +78,8 @@ clean:
 .PHONY: run
 run:
 	$(QEMU) $(QEMU_FLAGS) -kernel kernel
+
+# If there is a problem connecting with minicom, try replacing the : with \#
+.PHONY: minicom
+minicom:
+	minicom -D $(SERIAL_SOCKET_MINICOM)
