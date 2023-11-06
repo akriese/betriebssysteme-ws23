@@ -1,5 +1,4 @@
 // include what you want to execute
-
 #include "serial.h"
 
 __attribute__((naked, section(".init"))) void _start(void) {
