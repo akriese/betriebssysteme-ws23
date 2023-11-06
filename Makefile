@@ -16,7 +16,7 @@
 # Quellen
 #
 LSCRIPT = kernel.lds
-OBJ = start.o serial.o
+OBJ = start.o serial.o printf.o
 
 #
 # Konfiguration
