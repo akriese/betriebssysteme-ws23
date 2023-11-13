@@ -37,7 +37,7 @@ QEMU = qemu-system-arm
 QEMU_FLAGS = -nographic -M portux920t -m 64M
 
 # uncomment for serial exposure from qemu; accessible via e.g. `minicom`
-QEMU_FLAGS += -serial $(SERIAL_SOCKET),server
+# QEMU_FLAGS += -serial $(SERIAL_SOCKET),server
 
 # uncomment for telnet connection
 # QEMU_FLAGS += -piotelnet
