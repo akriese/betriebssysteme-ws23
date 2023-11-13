@@ -76,18 +76,28 @@ char _singleHex(int u) {
   return 'a' + u - 10;
 }
 
+/**
+ * Prints a given integer in hex representation.
+ * Cuts off leading zeros.
+ */
 void _printHex(const int u) {
   char hex[HEX_POSITIONS + 1]; // including trailing null terminator
 
   hex[HEX_POSITIONS] = '\0';
 
+  int firstIdx = HEX_POSITIONS - 1;
+
   for (int i = 0; i < HEX_POSITIONS; ++i) {
     char res = _singleHex(u >> (i * 4) & 0xF);
-    hex[HEX_POSITIONS - i - 1] = res;
+    int idx = HEX_POSITIONS - i - 1;
+    hex[idx] = res;
+
+    if (res != '0')
+      firstIdx = idx;
   }
 
   // using the string formatting of our own printf to prepend the "0x"
-  printf("0x%s", hex);
+  printf("0x%s", hex + firstIdx);
 }
 
 void _printAddress(const void *p) { _printHex((int)p); }
