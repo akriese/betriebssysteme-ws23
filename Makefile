@@ -21,9 +21,10 @@ OBJ = start.o serial.o printf.o
 #
 # Konfiguration
 #
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-ld
-OBJCOPY = arm-none-eabi-objcopy
+IMP_LIB = LD_LIBRARY_PATH=/home/mi/linnert/arm/lib
+CC =  $(IMP_LIB) arm-none-eabi-gcc
+LD = $(IMP_LIB) arm-none-eabi-ld
+OBJCOPY = $(IMP_LIB) arm-none-eabi-objcopy
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
 #LIBGCC := $(shell $(CC) -print-libgcc-file-name)
@@ -33,7 +34,11 @@ DEP = $(OBJ:.o=.d)
 # if the qemu installation is done via https://git.imp.fu-berlin.de/koenigl/qemu-portux
 SERIAL_SOCKET = unix:/tmp/serial.socket
 SERIAL_SOCKET_MINICOM = unix\#/tmp/serial.socket
-QEMU = qemu-system-arm
+
+QEMU_NAME = qemu-system-arm
+QEMU_LIB = LD_LIBRARY_PATH=/usr/local/lib:/import/sage-7.4/local/lib
+QEMU = $(QEMU_LIB) $(QEMU_NAME)
+
 QEMU_FLAGS = -nographic -M portux920t -m 64M
 
 # uncomment for serial exposure from qemu; accessible via e.g. `minicom`

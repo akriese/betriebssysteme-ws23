@@ -87,7 +87,8 @@ void _printHex(const int u) {
 
   int firstIdx = HEX_POSITIONS - 1;
 
-  for (int i = 0; i < HEX_POSITIONS; ++i) {
+  int i;
+  for (i = 0; i < HEX_POSITIONS; ++i) {
     char res = _singleHex(u >> (i * 4) & 0xF);
     int idx = HEX_POSITIONS - i - 1;
     hex[idx] = res;
