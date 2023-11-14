@@ -2,8 +2,7 @@
 #include "printf.h"
 #include "serial.h"
 
-__attribute__((naked, section(".init"))) void _start(void) {
-  // execute your os here
+int main() {
   char *intro = "Type a character and shrineOS will translate it!";
   printf("%s (string stored at %x)\n\r", intro, intro);
   printf("Terminate the OS with 'q'!\n\r");
@@ -20,6 +19,5 @@ __attribute__((naked, section(".init"))) void _start(void) {
     printf("shrineOS says: %c\n\r", c + 1);
   }
 
-  // then use an endless loop (for now)
-  // for(;;);
+  return 0;
 }
