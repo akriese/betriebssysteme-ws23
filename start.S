@@ -53,7 +53,9 @@ _start_bak:
         b .
 
 _remap:
-        b .
-        @ .org MEM_REMAP_CR
-        @ .byte 0x01
+        @b .
+        ldr r0, =MEM_REMAP_CR
+        mov r1, #1
+        str r1, [r0]
+        bx lr                   @ return
 
