@@ -25,6 +25,7 @@ IMP_LIB = LD_LIBRARY_PATH=/home/mi/linnert/arm/lib
 CC =  $(IMP_LIB) arm-none-eabi-gcc
 LD = $(IMP_LIB) arm-none-eabi-ld
 OBJCOPY = $(IMP_LIB) arm-none-eabi-objcopy
+OBJDUMP = $(IMP_LIB) arm-none-eabi-objdump
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
 #LIBGCC := $(shell $(CC) -print-libgcc-file-name)
@@ -88,3 +89,7 @@ run:
 .PHONY: minicom
 minicom:
 	minicom -D $(SERIAL_SOCKET_MINICOM)
+
+.PHONY: dump
+dump:
+	$(OBJDUMP) -d kernel
