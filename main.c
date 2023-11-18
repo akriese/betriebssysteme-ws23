@@ -14,21 +14,37 @@ int main() {
     char c = serial_read();
     printf("You gave the char: %c (%x)\n\r", c, c);
 
-    if (c == 'Q') {
+    int break_loop = 0;
+
+    switch (c) {
+    case 'Q':
       printf("'Performing' a system reset...\n\r\n\r");
       _perform_reset();
-    }
-
-    if (c == 'I') {
-      _perform_int();
-    }
-
-    if (c == 'q') {
-      printf("And now, I'll terminate myself...\n\r");
       break;
+    case 'I':
+      _perform_int();
+      break;
+    case 'U':
+      break;
+    case 'P':
+      // prefetch abort
+      break;
+    case 'D':
+      // data abort
+      break;
+    case 'S':
+      // software interrupt
+      break;
+    case 'q':
+      printf("And now, I'll terminate myself...\n\r");
+      break_loop = 1;
+      break;
+    default:
+      printf("shrineOS says: %c\n\r", c + 1);
     }
 
-    printf("shrineOS says: %c\n\r", c + 1);
+    if (break_loop)
+      break;
   }
 
   return 0;
