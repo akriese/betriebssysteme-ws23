@@ -25,25 +25,40 @@ reset_handler:
         ldmfd sp!, {r1, lr}
 
 undef_instr_handler:
-        b .
+        mov r0, #1
+        bl _pr_exception
+        b _Lend
 
 sw_int_handler:
-        b .
+        mov r0, #2
+        bl _pr_exception
+        b _Lend
 
 prefetch_abt_handler:
-        b .
+        mov r0, #3
+        bl _pr_exception
+        b _Lend
 
 data_abt_handler:
-        b .
+        mov r0, #4
+        bl _pr_exception
+        b _Lend
 
 irq_handler:
-        stmfd sp!, {r1, lr}
-        bl test_print
-        ldmfd sp!, {r1, lr}
-        @b .
+        mov r0, #5
+        bl _pr_exception
+        b _Lend
 
 fiq_handler:
-        b .
+        mov r0, #6
+        bl _pr_exception
+        b _Lend
+
+_pr_exception:
+        stmfd sp!, {r1, lr}
+        bl _print_exception
+        ldmfd sp!, {r1, lr}
+        bx lr
 
 _perform_reset:
         b ZERO
