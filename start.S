@@ -37,7 +37,10 @@ data_abt_handler:
         b .
 
 irq_handler:
-        @b test_print
+        stmfd sp!, {r1, lr}
+        bl test_print
+        ldmfd sp!, {r1, lr}
+        @b .
 
 fiq_handler:
         b .
@@ -56,9 +59,11 @@ _start_bak:
         b .
 
 _remap:
-        @b .
-        ldr r0, =MEM_REMAP_CR
-        mov r1, #1
+        stmfd sp!, {r1, lr}
+        bl test_print
+        ldmfd sp!, {r1, lr}
+        ldr r0, =MEM_REMAP_CR   @ define register with hardcoded address
+        mov r1, #1              @
         str r1, [r0]
         bx lr                   @ return
 
