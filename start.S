@@ -14,12 +14,15 @@ _start:
         b sw_int_handler
         b prefetch_abt_handler
         b data_abt_handler
+        b .
         b irq_handler
         b fiq_handler
 
 reset_handler:
-        @ bl _remap
+        bl _remap
+        stmfd sp!, {r1, lr}
         b main
+        ldmfd sp!, {r1, lr}
 
 undef_instr_handler:
         b .
