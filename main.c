@@ -25,6 +25,8 @@ int main() {
       _perform_int();
       break;
     case 'U':
+      // a GCC internal function that executes an undefined instruction
+      __builtin_trap();
       break;
     case 'P':
       // prefetch abort
