@@ -8,7 +8,7 @@
 .equ ZERO, 0x0
 .equ SRAM_ZERO, 0x00200000
 .equ IRQ_ADDR, 0x0018
-.equ SOME_RANDOM_ADDR, 0x44
+.equ REMAP_CHECK_REGISTER, (SRAM_ZERO + 0x20)
 
 _start:
         b reset_handler
@@ -19,21 +19,13 @@ _start:
         b _Lend
         b irq_handler
         b fiq_handler
+        .word 0x0               @ REMAP_CHECK_REGISTER: write a 1 if remap has been done
 
 reset_handler:
         mov r0, #0
         bl _pr_exception
 
-        @ ldr r0, =ZERO
-        @ bl _read_addr
-
         bl _remap_if_needed
-
-        ldr r0, =ZERO
-        bl _read_addr
-
-        ldr r0, =SOME_RANDOM_ADDR
-        bl _read_addr
 
         stmfd sp!, {r0, r1, lr}
         bl main
@@ -86,17 +78,20 @@ _perform_int:
 
 _remap_if_needed:
         @ somehow this leads to an unknown error, so its commented out for now
-        @ ldr r0, =ZERO
-        @ ldr r1, [r0]
-        @ ldr r0, =SRAM_ZERO
-        @ ldr r2, [r0]
+        ldr r0, =REMAP_CHECK_REGISTER
+        ldr r1, [r0]
+        mov r2, #1
 
-        @ cmp r1, r2
-        @ beq .end
+        cmp r1, r2
+        beq .end
 
         .remap:
         ldr r0, =MEM_REMAP_CR   @ define register with hardcoded address
         mov r1, #1              @
+        str r1, [r0]
+
+        @ set custom remap flag to 1 to not accidentally remap again
+        ldr r0, =REMAP_CHECK_REGISTER
         str r1, [r0]
 
         .end:
