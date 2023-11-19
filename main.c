@@ -6,9 +6,17 @@ extern int _perform_reset(void);
 extern int _perform_int(void);
 
 int main() {
-  char *intro = "Type a character and shrineOS will translate it!";
-  printf("%s (string stored at %x)\n\r", intro, intro);
-  printf("Terminate the OS with 'q'!\n\r");
+  char *intro =
+      "Welcome to shrineOS! Type a character and shrineOS will respond.";
+  printf("\n\r%s (string stored at %x)\n\r", intro, intro);
+  printf("Press the following keys for special actions:\n\r");
+  printf("q - exit this program\n\r");
+  printf("Q - system reset\n\r");
+  printf("I - interrupt\n\r");
+  printf("U - undefined instruction\n\r");
+  printf("P - prefetch abort (not implemented)\n\r");
+  printf("D - data abort (not implemented)\n\r");
+  printf("S - software interrupt (not implemented)\n\r");
 
   for (;;) {
     char c = serial_read();
@@ -18,7 +26,6 @@ int main() {
 
     switch (c) {
     case 'Q':
-      printf("'Performing' a system reset...\n\r\n\r");
       _perform_reset();
       break;
     case 'I':
