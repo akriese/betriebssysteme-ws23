@@ -33,15 +33,14 @@ reset_handler:
 
         bl _remap_if_needed
 
-        push {r4 - r11, sp, pc, lr}
-        bl register_dump
-        @ need to pop sp, pc, and lr without writing
-        @ add sp, #12
-        pop {r4 - r11}
+        push {pc}
+        bl _register_dump
+        pop {r0}
 
-        stmfd sp!, {r0, r1, lr}
+        push {r1, lr}
         bl main
-        ldmfd sp!, {r0, r1, lr}
+        pop {r1, lr}
+
         b _Lend
 
 undef_instr_handler:
@@ -75,9 +74,9 @@ fiq_handler:
         b _Lend
 
 _pr_exception:
-        stmfd sp!, {r1, lr}
+        push {r1, lr}
         bl _print_exception
-        ldmfd sp!, {r1, lr}
+        pop {r1, lr}
         bx lr
 
 _perform_reset:
@@ -89,7 +88,7 @@ _perform_int:
         bx lr
 
 _remap_if_needed:
-        @ somehow this leads to an unknown error, so its commented out for now
+        @ check at our custom location, if the remap already happened
         ldr r0, =REMAP_CHECK_REGISTER
         ldr r1, [r0]
         mov r2, #1
@@ -111,10 +110,35 @@ _remap_if_needed:
 
 @ expects r0 to be the address
 _read_addr:
-        stmfd sp!, {r0, r1, lr}
+        stmfd sp!, {r0, lr}
         ldr r1, [r0]
         bl _print_mem
-        ldmfd sp!, {r0, r1, lr}
+        ldmfd sp!, {r0, lr}
+        bx lr
+
+@ expects pc pushed in the stack by caller
+_register_dump:
+        @ push all registers into stack for C function to access
+        push {r4 - r12, sp, lr}
+
+        bl register_dump
+
+        pop {r4 - r12, sp, lr}
+
+        @ we would need to pop pc too but we dont want to overwrite pc
+        @ so we would need to add 4 bytes to the sp to "forget" the pc entry
+        @ this is actually done by pop being 8 byte aligned, no need to add here
+        @add sp, sp, #4                          @ forget PC in stack
+        bx lr
+
+_exception_register_dump:
+        push {r4 - r11, sp, lr}
+
+        bl register_dump
+
+        @ need to pop sp and pc without writing
+        @ adding as the stack is full descending
+        pop {r4 - r11, sp, lr}
         bx lr
 
 _Lend:
