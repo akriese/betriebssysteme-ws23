@@ -27,6 +27,12 @@ reset_handler:
 
         bl _remap_if_needed
 
+        push {r4 - r11, sp, pc, lr}
+        bl register_dump
+        @ need to pop sp, pc, and lr without writing
+        @ add sp, #12
+        pop {r4 - r11}
+
         stmfd sp!, {r0, r1, lr}
         bl main
         ldmfd sp!, {r0, r1, lr}
