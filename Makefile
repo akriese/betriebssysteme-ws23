@@ -27,7 +27,7 @@ LD = $(IMP_LIB) arm-none-eabi-ld
 OBJCOPY = $(IMP_LIB) arm-none-eabi-objcopy
 OBJDUMP = $(IMP_LIB) arm-none-eabi-objdump
 
-CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
+CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2 --unresolved-symbols=ignore-in-object-files
 #LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
@@ -63,7 +63,7 @@ all: kernel
 	$(CC) $(CFLAGS) -MMD -MP -o $@ -c $<
 
 kernel: $(LSCRIPT) $(OBJ)
-	$(LD) -T$(LSCRIPT) -o $@ $(OBJ) $(LIBGCC)
+	$(LD) -T$(LSCRIPT) --unresolved-symbols=ignore-in-object-files -o $@ $(OBJ) $(LIBGCC)
 
 kernel.bin: kernel
 	$(OBJCOPY) -Obinary --set-section-flags .bss=contents,alloc,load,data $< $@
