@@ -9,6 +9,7 @@
 .equ SRAM_ZERO, 0x00200000
 .equ IRQ_ADDR, 0x0018
 .equ REMAP_CHECK_REGISTER, (SRAM_ZERO + 0x20)
+.equ STACK_START, 0x002FFFF8            @ 8 byte aligned stack start (just before 0x0030_0000)
 
 _start:
         b reset_handler
@@ -22,6 +23,11 @@ _start:
         .word 0x0               @ REMAP_CHECK_REGISTER: write a 1 if remap has been done
 
 reset_handler:
+        @ in this function, we dont need to save lr ever as we dont plan to jump back
+
+        @ set the stack pointer to a fixed address; all previous information is lost
+        ldr sp, =STACK_START
+
         mov r0, #0
         bl _pr_exception
 
