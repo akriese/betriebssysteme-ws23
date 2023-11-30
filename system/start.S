@@ -1,8 +1,3 @@
-.section .init
-.global _start
-.global _perform_reset
-.global _perform_int
-
 .equ MEM_CONTROLLER_UI, 0xFFFFFF00
 .equ MEM_REMAP_CR, (MEM_CONTROLLER_UI + 0x00)
 .equ ZERO, 0x0
@@ -11,6 +6,7 @@
 .equ REMAP_CHECK_REGISTER, (SRAM_ZERO + 0x20)
 .equ STACK_START, 0x002FFFF8            @ 8 byte aligned stack start (just before 0x0030_0000)
 
+.global _start
 _start:
         b reset_handler
         b undef_instr_handler
@@ -79,10 +75,12 @@ _pr_exception:
         pop {r1, lr}
         bx lr
 
+.global _perform_reset
 _perform_reset:
         b ZERO
         bx lr
 
+.global _perform_int
 _perform_int:
         b IRQ_ADDR
         bx lr
