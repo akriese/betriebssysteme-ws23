@@ -7,4 +7,4 @@ layout asm
 layout regs
 
 break _start
-break printf
+break print

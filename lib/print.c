@@ -19,7 +19,7 @@ void _printAddress(const void *p);
  * Our printf implementation
  *
  */
-__attribute__((format(printf, 1, 2))) void printf(const char *fmt, ...) {
+__attribute__((format(printf, 1, 2))) void print(const char *fmt, ...) {
   va_list arguments;
 
   va_start(arguments, fmt);
@@ -98,7 +98,7 @@ void _printHex(const int u) {
   }
 
   // using the string formatting of our own printf to prepend the "0x"
-  printf("0x%s", hex + firstIdx);
+  print("0x%s", hex + firstIdx);
 }
 
 void _printAddress(const void *p) { _printHex((int)p); }

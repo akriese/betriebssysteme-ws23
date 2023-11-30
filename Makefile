@@ -18,7 +18,7 @@
 LSCRIPT = kernel.lds
 
 OBJ = driver/dbgu.o
-OBJ += lib/printf.o lib/util.o
+OBJ += lib/print.o lib/util.o
 OBJ += system/main.o system/start.o
 
 #
