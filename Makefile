@@ -85,6 +85,14 @@ clean:
 run:
 	$(QEMU) $(QEMU_FLAGS) -kernel kernel
 
+.PHONY: debug
+debug:
+	$(QEMU) $(QEMU_FLAGS) -s -S -kernel kernel
+
+.PHONY: gdb
+gdb:
+	gdb-multiarch -x .gdbinit
+
 # If there is a problem connecting with minicom, try replacing the : with \#
 .PHONY: minicom
 minicom:
