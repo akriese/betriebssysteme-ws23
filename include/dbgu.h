@@ -1,8 +1,13 @@
+#ifndef _DBGU_H_
+#define _DBGU_H_
+
 // Reads a char from the serial interface
-char serial_read();
+char dbgu_getc();
 
 // Writes a char to the serial interface
-void serial_write(char c);
+void dbgu_putc(char c);
 
 // Writes a string to the serial interface. Stops at the first \0 in s
 void serial_write_string(char *s);
+
+#endif // !_DBGU_H_

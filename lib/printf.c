@@ -1,6 +1,6 @@
 #include <stdarg.h> // for va_list etc., can be imported, as not OS specific
 
-#include "serial.h"
+#include <dbgu.h>
 
 #define HEX_POSITIONS 8 // 1 hex char represents 4 bits; assuming 32bit integers
 
@@ -8,7 +8,7 @@
  * Some function that actually prints a character or sends it via the serial
  * interface
  */
-void _print(char c) { serial_write(c); }
+void _print(char c) { dbgu_getc(c); }
 
 void _printChar(const char c);
 void _printString(const char *s);

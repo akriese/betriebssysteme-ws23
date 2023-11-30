@@ -1,4 +1,4 @@
-#include "serial.h"
+#include <dbgu.h>
 
 #define DBGU 0xFFFFF200 // Address of the debug unit's controller mapping
 
@@ -45,7 +45,7 @@ void write_char(char c) { *(volatile char *)DBGU_THR = c; }
  * There is no need to clear the register or signal anything after reading,
  * as that is done by the controller upon the register read instruction.
  */
-char serial_read() {
+char dbgu_getc() {
   // enable receive controller
   set_status(DBGU_CR, RXEN_BIT);
 
@@ -66,7 +66,7 @@ char serial_read() {
  *
  * The controller has to be enabled before and disabled afterwards.
  */
-void serial_write(char c) {
+void dbgu_putc(char c) {
   // enable write controller
   set_status(DBGU_CR, TXEN_BIT);
 

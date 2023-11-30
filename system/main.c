@@ -1,6 +1,6 @@
 // include what you want to execute
-#include "printf.h"
-#include "serial.h"
+#include <dbgu.h>
+#include <printf.h>
 
 extern int _perform_reset(void);
 extern int _perform_int(void);
@@ -19,7 +19,7 @@ int main() {
   printf("S - software interrupt (not implemented)\n\r");
 
   for (;;) {
-    char c = serial_read();
+    char c = dbgu_getc();
     printf("You gave the char: %c (%x)\n\r", c, c);
 
     int break_loop = 0;
