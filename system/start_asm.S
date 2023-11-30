@@ -1,22 +1,20 @@
-.equ MEM_CONTROLLER_UI, 0xFFFFFF00
+#include "memlayout.h"
+
 .equ MEM_REMAP_CR, (MEM_CONTROLLER_UI + 0x00)
 .equ ZERO, 0x0
-.equ SRAM_ZERO, 0x00200000
 .equ IRQ_ADDR, 0x0018
 .equ REMAP_CHECK_REGISTER, (SRAM_ZERO + 0x20)
 .equ STACK_START, 0x002FFFF8            @ 8 byte aligned stack start (just before 0x0030_0000)
 
 .global _start
 _start:
-        b reset_handler
-        b undef_instr_handler
-        b sw_int_handler
-        b prefetch_abt_handler
-        b data_abt_handler
+        ldr sp, =STACK_BOTTOM
+
+        bl setup_kernel
+
+        bl main
+
         b _Lend
-        b irq_handler
-        b fiq_handler
-        .word 0x0               @ REMAP_CHECK_REGISTER: write a 1 if remap has been done
 
 reset_handler:
         @ in this function, we dont need to save lr ever as we dont plan to jump back

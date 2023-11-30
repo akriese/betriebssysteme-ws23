@@ -1,6 +1,5 @@
 #include <dbgu.h>
-
-#define DBGU 0xFFFFF200 // Address of the debug unit's controller mapping
+#include <memaddresses.h>
 
 #define DBGU_CR (DBGU | 0x0000) // Debug controller control register
 #define RXEN_BIT 4              // enables read

@@ -18,8 +18,8 @@
 LSCRIPT = kernel.lds
 
 OBJ = driver/dbgu.o
-OBJ += lib/print.o lib/util.o
-OBJ += system/main.o system/start.o
+OBJ += lib/print.o lib/util.o lib/mem.o
+OBJ += system/main.o system/start.o system/start_asm.o system/exceptions_asm.o
 
 #
 # Konfiguration
