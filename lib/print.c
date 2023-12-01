@@ -8,7 +8,7 @@
  * Some function that actually prints a character or sends it via the serial
  * interface
  */
-void _print(char c) { dbgu_getc(c); }
+void _print(char c) { dbgu_putc(c); }
 
 void _printChar(const char c);
 void _printString(const char *s);
