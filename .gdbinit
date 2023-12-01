@@ -6,5 +6,4 @@ tui enable
 layout asm
 layout regs
 
-break _start
-break print
+break setup_kernel

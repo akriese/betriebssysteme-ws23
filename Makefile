@@ -31,7 +31,7 @@ LD = $(IMP_LIB) arm-none-eabi-ld
 OBJCOPY = $(IMP_LIB) arm-none-eabi-objcopy
 OBJDUMP = $(IMP_LIB) arm-none-eabi-objdump
 
-CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2
+CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2 -g
 # --unresolved-symbols=ignore-in-object-files
 CFLAGS += -Iinclude
 #LIBGCC := $(shell $(CC) -print-libgcc-file-name)
