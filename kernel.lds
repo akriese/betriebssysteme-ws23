@@ -3,7 +3,7 @@ SECTIONS
 {
     . = 0x20000000;
     init : {
-        system/start.o(.text)
+        system/start_asm.o(.text)
     }
 
     .text : {
