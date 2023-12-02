@@ -7,7 +7,7 @@ void register_dump(unsigned int registers[16]) {
 
   int i;
   for (i = 0; i < 3; i++) {
-    int idx = i + 4;
+    int idx = i * 4;
     print("r%d:\t %X;\tr%d:\t %X;\tr%d:\t %X;\tr%d:\t %X\n\r", idx, r[idx],
           idx + 1, r[idx + 1], idx + 2, r[idx + 2], idx + 3, r[idx + 3]);
   }

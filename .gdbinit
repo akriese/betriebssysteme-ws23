@@ -6,4 +6,6 @@ tui enable
 layout asm
 layout regs
 
+alias N = nexti
+
 break setup_kernel
