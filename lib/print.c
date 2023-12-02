@@ -74,16 +74,19 @@ void _printChar(const char c) { _print(c); }
 void _printDecimal(const int d) {
   int x = d;
 
-  if (x == 0) {
-    _print('0');
-  }
-
   const char *lookup = "0123456789";
+  char digits[16];
 
-  while (x > 0) {
-    _printChar(lookup[x % 10]);
+  // filling up the digits string from the right (small positions first)
+  digits[15] = '\0';
+  int idx = 14;
+
+  do {
+    digits[idx--] = lookup[x % 10];
     x /= 10;
-  }
+  } while (x > 0);
+
+  _printString(digits + idx + 1);
 }
 
 void _printString(const char *s) {
