@@ -12,6 +12,11 @@ _start:
 
         bl setup_kernel
 
+        stmfd sp!, {r0 - r15}
+        mov r0, sp
+        bl register_dump
+        ldr sp, [sp, #64]
+
         bl main
 
         b _Lend

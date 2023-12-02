@@ -1,17 +1,20 @@
 #include <print.h>
 
-void register_dump(int r0, int r1, int r2, int r3, int r4, int r5, int r6,
-                   int r7, int r8, int r9, int r10, int r11, int r12, int sp,
-                   int lr, int pc) {
+void register_dump(unsigned int registers[16]) {
   print("REGISTER DUMP START\n\r");
-  print("r0: %x;\tr1: %x;\tr2: %x\n\r", r0, r1, r2);
-  print("r3: %x;\tr4: %x;\tr5: %x\n\r", r3, r4, r5);
-  print("r6: %x;\tr7: %x;\tr8: %x\n\r", r6, r7, r8);
-  print("r9: %x;\tr10: %x;\tr11: %x\n\r", r9, r10, r11);
-  print("r12: %x;\n\r", r12);
+
+  unsigned int const *r = registers;
+
+  int i;
+  for (i = 0; i < 3; i++) {
+    int idx = i + 4;
+    print("r%d:\t %X;\tr%d:\t %X;\tr%d:\t %X;\tr%d:\t %X\n\r", idx, r[idx],
+          idx + 1, r[idx + 1], idx + 2, r[idx + 2], idx + 3, r[idx + 3]);
+  }
 
   // adding 4 to sp as pc has to be pushed manually before function call
-  print("sp: %x;\tlr: %x;\tpc: %x\n\r", sp + 4, lr, pc);
+  print("r12:\t %X;\tsp:\t %X;\tlr:\t %X;\tpc:\t %X\n\r", r[12], r[13], r[14],
+        r[15]);
   print("REGISTER DUMP END\n\r");
 }
 
