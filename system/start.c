@@ -12,6 +12,10 @@ enum cpu_mode {
   CPU_MODE_SYS = 0x1f,
 };
 
+// defined in system/exceptions_asm.S
+extern char _ivt_start[];
+extern char _ivt_end[];
+
 extern void _set_cpu_mode_stack(enum cpu_mode mode, unsigned int stack_size);
 
 void setup_kernel(void) {
@@ -23,4 +27,6 @@ void setup_kernel(void) {
   _set_cpu_mode_stack(CPU_MODE_SYS, STACK_BOTTOM - 5 * STACK_SIZE);
 
   // init exceptions
+  memcpy(_ivt_start, (void *)INTERNAL_RAM, _ivt_end - _ivt_start);
+  mc_remap();
 }
