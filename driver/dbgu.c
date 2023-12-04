@@ -1,18 +1,13 @@
 #include <dbgu.h>
-#include <memaddresses.h>
+#include <mem_addresses.h>
 
-#define DBGU_CR (DBGU | 0x0000) // Debug controller control register
-#define RXEN_BIT 4              // enables read
-#define RXDIS_BIT 5             // disables read
-#define TXEN_BIT 6              // enables write
-#define TXDIS_BIT 7             // disables write
+#define RXEN_BIT 4  // enables read
+#define RXDIS_BIT 5 // disables read
+#define TXEN_BIT 6  // enables write
+#define TXDIS_BIT 7 // disables write
 
-#define DBGU_SR (DBGU | 0x0014) // Debug controller status register
-#define RXRDY_BIT 0             // checking for available receive
-#define TXRDY_BIT 1             // checking for possible transmit
-
-#define DBGU_RHR (DBGU | 0x18) // Receive holding register
-#define DBGU_THR (DBGU | 0x1c) // Transmit holding register
+#define RXRDY_BIT 0 // checking for available receive
+#define TXRDY_BIT 1 // checking for possible transmit
 
 /*
  * Returns 1 if a bit at the given position at the given address is set.

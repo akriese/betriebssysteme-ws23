@@ -1,4 +1,6 @@
 #include "memlayout.h"
+#include <mem.h>
+#include <mem_addresses.h>
 
 enum cpu_mode {
   CPU_MODE_USER = 0x10,
