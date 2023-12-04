@@ -24,3 +24,10 @@ Using the `-nographic` flag for `qemu` by default, the debug serial interface is
 forwarded by `qemu` to the executing console. Thus, you can send characters to the
 virtual machine by typing on your keyboard. The console will print whatever is sent by
 virtual machine.
+
+## Debugging
+
+One can connect to qemu with gdb to debug the running kernel. There are the two commands
+`make debug` to start the kernel in debug mode and immediately stop. In another terminal
+you can start `make gdb` to start gdb with a config file (`./gdbinit`) which sets some
+breakpoints and sets up the tui layout.
