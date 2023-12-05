@@ -32,17 +32,18 @@ int main() {
       _perform_int();
       break;
     case 'U':
-      // a GCC internal function that executes an undefined instruction
-      __builtin_trap();
+      asm("udf #0");
       break;
     case 'P':
       // prefetch abort
       break;
     case 'D':
+      *(int *)0xa0000000 = 0;
       // data abort
       break;
     case 'S':
       // software interrupt
+      asm("swi #0");
       break;
     case 'q':
       print("And now, I'll terminate myself...\n\r");
