@@ -1,6 +1,6 @@
 #include <stdarg.h> // for va_list etc., can be imported, as not OS specific
 
-#include "serial.h"
+#include <dbgu.h>
 
 #define HEX_POSITIONS 8 // 1 hex char represents 4 bits; assuming 32bit integers
 
@@ -8,18 +8,19 @@
  * Some function that actually prints a character or sends it via the serial
  * interface
  */
-void _print(char c) { serial_write(c); }
+void _print(char c) { dbgu_putc(c); }
 
+void _printDecimal(const int d);
 void _printChar(const char c);
 void _printString(const char *s);
-void _printHex(const int u);
+void _printHex(const int u, const int full);
 void _printAddress(const void *p);
 
 /*
  * Our printf implementation
  *
  */
-__attribute__((format(printf, 1, 2))) void printf(const char *fmt, ...) {
+__attribute__((format(printf, 1, 2))) void print(const char *fmt, ...) {
   va_list arguments;
 
   va_start(arguments, fmt);
@@ -40,6 +41,9 @@ __attribute__((format(printf, 1, 2))) void printf(const char *fmt, ...) {
     }
 
     switch (f) {
+    case 'd':
+      _printDecimal(va_arg(arguments, int));
+      break;
     case 'c':
       _printChar((char)va_arg(arguments, int));
       break;
@@ -47,7 +51,10 @@ __attribute__((format(printf, 1, 2))) void printf(const char *fmt, ...) {
       _printString(va_arg(arguments, char *));
       break;
     case 'x':
-      _printHex(va_arg(arguments, int));
+      _printHex(va_arg(arguments, int), 0);
+      break;
+    case 'X':
+      _printHex(va_arg(arguments, int), 1);
       break;
     case 'p':
       _printAddress(va_arg(arguments, void *));
@@ -63,6 +70,24 @@ __attribute__((format(printf, 1, 2))) void printf(const char *fmt, ...) {
 }
 
 void _printChar(const char c) { _print(c); }
+
+void _printDecimal(const int d) {
+  int x = d;
+
+  const char *lookup = "0123456789";
+  char digits[16];
+
+  // filling up the digits string from the right (small positions first)
+  digits[15] = '\0';
+  int idx = 14;
+
+  do {
+    digits[idx--] = lookup[x % 10];
+    x /= 10;
+  } while (x > 0);
+
+  _printString(digits + idx + 1);
+}
 
 void _printString(const char *s) {
   while (*s) {
@@ -80,7 +105,7 @@ char _singleHex(int u) {
  * Prints a given integer in hex representation.
  * Cuts off leading zeros.
  */
-void _printHex(const int u) {
+void _printHex(const int u, const int full) {
   char hex[HEX_POSITIONS + 1]; // including trailing null terminator
 
   hex[HEX_POSITIONS] = '\0';
@@ -93,12 +118,12 @@ void _printHex(const int u) {
     int idx = HEX_POSITIONS - i - 1;
     hex[idx] = res;
 
-    if (res != '0')
+    if (res != '0' || full)
       firstIdx = idx;
   }
 
   // using the string formatting of our own printf to prepend the "0x"
-  printf("0x%s", hex + firstIdx);
+  print("0x%s", hex + firstIdx);
 }
 
-void _printAddress(const void *p) { _printHex((int)p); }
+void _printAddress(const void *p) { _printHex((int)p, 1); }

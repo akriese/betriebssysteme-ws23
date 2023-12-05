@@ -1,19 +1,13 @@
-#include "serial.h"
+#include <dbgu.h>
+#include <mem_addresses.h>
 
-#define DBGU 0xFFFFF200 // Address of the debug unit's controller mapping
+#define RXEN_BIT 4  // enables read
+#define RXDIS_BIT 5 // disables read
+#define TXEN_BIT 6  // enables write
+#define TXDIS_BIT 7 // disables write
 
-#define DBGU_CR (DBGU | 0x0000) // Debug controller control register
-#define RXEN_BIT 4              // enables read
-#define RXDIS_BIT 5             // disables read
-#define TXEN_BIT 6              // enables write
-#define TXDIS_BIT 7             // disables write
-
-#define DBGU_SR (DBGU | 0x0014) // Debug controller status register
-#define RXRDY_BIT 0             // checking for available receive
-#define TXRDY_BIT 1             // checking for possible transmit
-
-#define DBGU_RHR (DBGU | 0x18) // Receive holding register
-#define DBGU_THR (DBGU | 0x1c) // Transmit holding register
+#define RXRDY_BIT 0 // checking for available receive
+#define TXRDY_BIT 1 // checking for possible transmit
 
 /*
  * Returns 1 if a bit at the given position at the given address is set.
@@ -45,7 +39,7 @@ void write_char(char c) { *(volatile char *)DBGU_THR = c; }
  * There is no need to clear the register or signal anything after reading,
  * as that is done by the controller upon the register read instruction.
  */
-char serial_read() {
+char dbgu_getc() {
   // enable receive controller
   set_status(DBGU_CR, RXEN_BIT);
 
@@ -66,7 +60,7 @@ char serial_read() {
  *
  * The controller has to be enabled before and disabled afterwards.
  */
-void serial_write(char c) {
+void dbgu_putc(char c) {
   // enable write controller
   set_status(DBGU_CR, TXEN_BIT);
 

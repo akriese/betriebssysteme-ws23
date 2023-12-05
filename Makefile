@@ -16,18 +16,24 @@
 # Quellen
 #
 LSCRIPT = kernel.lds
-OBJ = start.o serial.o printf.o main.o util.o
+
+OBJ = driver/dbgu.o
+OBJ += lib/print.o lib/util.o lib/mem.o
+OBJ += system/main.o system/start.o system/memory_controller.o system/exceptions.o
+OBJ += system/start_asm.o system/exceptions_asm.o system/cpu_asm.o
 
 #
 # Konfiguration
 #
 IMP_LIB = LD_LIBRARY_PATH=/home/mi/linnert/arm/lib
-CC =  $(IMP_LIB) arm-none-eabi-gcc
+CC = $(IMP_LIB) arm-none-eabi-gcc
 LD = $(IMP_LIB) arm-none-eabi-ld
 OBJCOPY = $(IMP_LIB) arm-none-eabi-objcopy
 OBJDUMP = $(IMP_LIB) arm-none-eabi-objdump
 
-CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2 --unresolved-symbols=ignore-in-object-files
+CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2 -g
+# --unresolved-symbols=ignore-in-object-files
+CFLAGS += -Iinclude
 #LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
@@ -84,6 +90,14 @@ clean:
 .PHONY: run
 run:
 	$(QEMU) $(QEMU_FLAGS) -kernel kernel
+
+.PHONY: debug
+debug:
+	$(QEMU) $(QEMU_FLAGS) -s -S -kernel kernel
+
+.PHONY: gdb
+gdb:
+	gdb-multiarch -x .gdbinit
 
 # If there is a problem connecting with minicom, try replacing the : with \#
 .PHONY: minicom
