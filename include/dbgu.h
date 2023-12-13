@@ -10,4 +10,10 @@ void dbgu_putc(char c);
 // Writes a string to the serial interface. Stops at the first \0 in s
 void serial_write_string(char *s);
 
+// enables interrupts on receive
+void dbgu_enable_interrupt();
+
+// checks if the current interrupt was triggered by the dbgu
+int dbgu_interrupt_active();
+
 #endif // !_DBGU_H_

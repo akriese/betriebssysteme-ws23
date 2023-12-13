@@ -9,6 +9,8 @@
 #define RXRDY_BIT 0 // checking for available receive
 #define TXRDY_BIT 1 // checking for possible transmit
 
+#define IER_RXRDY_BIT 0
+
 struct dbgu {
   unsigned int cr;
   unsigned int __mr;
@@ -114,3 +116,7 @@ void serial_write_string(char *s) {
   // disable transmitter peacefully
   set_status(TXDIS_BIT);
 }
+
+void dbgu_enable_interrupt() { dbgu->ier = 1 << IER_RXRDY_BIT; }
+
+int dbgu_interrupt_active() { return check_status(RXRDY_BIT); }
