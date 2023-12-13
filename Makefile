@@ -34,7 +34,7 @@ OBJDUMP = $(IMP_LIB) arm-none-eabi-objdump
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2 -g
 # --unresolved-symbols=ignore-in-object-files
 CFLAGS += -Iinclude
-#LIBGCC := $(shell $(CC) -print-libgcc-file-name)
+LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
 
