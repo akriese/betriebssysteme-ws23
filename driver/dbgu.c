@@ -9,29 +9,44 @@
 #define RXRDY_BIT 0 // checking for available receive
 #define TXRDY_BIT 1 // checking for possible transmit
 
+struct dbgu {
+  unsigned int cr;
+  unsigned int __mr;
+  unsigned int ier;
+  unsigned int idr;
+  unsigned int imr;
+  unsigned int sr;
+  unsigned int rhr;
+  unsigned int thr;
+  unsigned int __brgr;
+  unsigned int __reserved[(0x40 - 0x24) >> 2];
+  unsigned int __cidr;
+  unsigned int __exid;
+};
+
+volatile struct dbgu *const dbgu = (struct dbgu *)DBGU;
+
 /*
  * Returns 1 if a bit at the given position at the given address is set.
  */
-int check_status(unsigned int address, unsigned int bit_position) {
-  return *(volatile unsigned int *)address & 1 << bit_position;
+int check_status(unsigned int bit_position) {
+  return dbgu->sr & 1 << bit_position;
 }
 
 /*
  * Sets a bit at the given position to 1.
  */
-void set_status(unsigned int address, unsigned int bit_position) {
-  *(volatile unsigned int *)address = 1 << bit_position;
-}
+void set_status(unsigned int bit_position) { dbgu->cr = 1 << bit_position; }
 
 /*
  * Reads the char in the receive holding register.
  */
-char read_char() { return *(volatile char *)DBGU_RHR; }
+char read_char() { return dbgu->rhr; }
 
 /*
  * Puts a given char into the transmit holding register.
  */
-void write_char(char c) { *(volatile char *)DBGU_THR = c; }
+void write_char(char c) { dbgu->thr = c; }
 
 /*
  * Wait for a char to be received and return that char.
@@ -41,16 +56,16 @@ void write_char(char c) { *(volatile char *)DBGU_THR = c; }
  */
 char dbgu_getc() {
   // enable receive controller
-  set_status(DBGU_CR, RXEN_BIT);
+  set_status(RXEN_BIT);
 
   // wait for incoming character
-  while (!check_status(DBGU_SR, RXRDY_BIT)) {
+  while (!check_status(RXRDY_BIT)) {
   }
 
   char input = read_char();
 
   // disable read
-  set_status(DBGU_CR, RXDIS_BIT);
+  set_status(RXDIS_BIT);
 
   return input;
 }
@@ -62,16 +77,16 @@ char dbgu_getc() {
  */
 void dbgu_putc(char c) {
   // enable write controller
-  set_status(DBGU_CR, TXEN_BIT);
+  set_status(TXEN_BIT);
 
   // wait for permission to write another char
-  while (!check_status(DBGU_SR, TXRDY_BIT)) {
+  while (!check_status(TXRDY_BIT)) {
   }
 
   write_char(c);
 
   // disable transmitter peacefully
-  set_status(DBGU_CR, TXDIS_BIT);
+  set_status(TXDIS_BIT);
 }
 
 /*
@@ -85,10 +100,10 @@ void dbgu_putc(char c) {
  */
 void serial_write_string(char *s) {
   // enable write controller
-  set_status(DBGU_CR, TXEN_BIT);
+  set_status(TXEN_BIT);
 
   while (*s) {
-    while (!check_status(DBGU_SR, TXRDY_BIT)) {
+    while (!check_status(TXRDY_BIT)) {
     }
 
     write_char(*s);
@@ -97,5 +112,5 @@ void serial_write_string(char *s) {
   }
 
   // disable transmitter peacefully
-  set_status(DBGU_CR, TXDIS_BIT);
+  set_status(TXDIS_BIT);
 }
