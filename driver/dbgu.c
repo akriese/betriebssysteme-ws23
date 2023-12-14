@@ -1,5 +1,6 @@
 #include <dbgu.h>
 #include <mem_addresses.h>
+#include <mem_layout.h>
 
 #define RXEN_BIT 4  // enables read
 #define RXDIS_BIT 5 // disables read
