@@ -18,4 +18,6 @@ int dbgu_interrupt_active();
 
 void dbgu_receive_interrupt_handler();
 
+void dbgu_initialize();
+
 #endif // !_DBGU_H_
