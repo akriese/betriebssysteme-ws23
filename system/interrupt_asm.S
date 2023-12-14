@@ -8,7 +8,7 @@ handle_sys_interrupt:
   mov r0, sp
 
   /* dump registers */
-  bl register_dump
+  /*bl register_dump*/
 
   /* disable interrupts */
   bl cpsr_disable_interrupts
