@@ -7,6 +7,8 @@ extern int _perform_reset(void);
 extern int _perform_int(void);
 
 extern void *check_stack_pointer(enum cpu_mode mode);
+extern unsigned int check_cpsr(enum cpu_mode mode);
+extern void cpsr_enable_interrupts();
 
 int interrupt_program() {
   print("start of the program\n\r");
@@ -14,6 +16,10 @@ int interrupt_program() {
   st_activate_pits(1000);
 
   install_interrupt_handlers();
+  cpsr_enable_interrupts();
+
+  unsigned int cpsr = check_cpsr(CPU_MODE_USER);
+  print("CPSR: %b\n\r", cpsr);
 
   print("setup done!\n\r");
 
