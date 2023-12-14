@@ -25,11 +25,14 @@ int interrupt_program() {
   print("setup done!\n\r");
 
   while (1) {
-    dbgu_getc();
+    char c = dbgu_getc();
 
     volatile int i; // volatile so it is not optimized away
-    for (i = 0; i < 10000; i++) {
-      // do nothing
+    for (i = 0; i < 40; i++) {
+      print("%c", c);
+      volatile int j;
+      for (j = 0; j < 10000000; j++) {
+      }
     }
   }
 
