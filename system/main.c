@@ -11,10 +11,7 @@ extern void *check_stack_pointer(enum cpu_mode mode);
 int interrupt_program() {
   print("start of the program\n\r");
   dbgu_enable_interrupt();
-  st_activate_pits((unsigned char)1000);
-  print("IRQ stack pointer: %p\n\r", check_stack_pointer(CPU_MODE_IRQ));
-  print("SYS stack pointer: %p\n\r", check_stack_pointer(CPU_MODE_SYS));
-  print("UND stack pointer: %p\n\r", check_stack_pointer(CPU_MODE_UND));
+  st_activate_pits(1000);
 
   install_interrupt_handlers();
 
