@@ -29,17 +29,15 @@ volatile struct aic *const aic = (struct aic *)AIC;
 
 void timer_interrupt_handler() { print("!\n\r"); }
 
-void dbgu_interrupt_handler() { print("?\n\r"); }
-
 void system_interrupt_handler() {
-  print("system interrupt received!\n\r");
+  // print("system interrupt received!\n\r");
 
   // read status registers of the system peripherals
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {
     timer_interrupt_handler();
   } else if (dbgu_interrupt_active()) {
-    dbgu_interrupt_handler();
+    dbgu_receive_interrupt_handler();
   }
 
   // finally, signal that the interrupt handling is over
