@@ -43,17 +43,25 @@ check_stack_pointer:
   @returns the cpsr of that mode
 */
 check_cpsr:
-        /* Read-Modify-Write to change the CPU mode */
-        mrs r2, cpsr
-        bic r3, r2, #0x1f
-        orr r3, r3, r0
-        msr cpsr_c, r3
+        mrs r0, cpsr
+        bx lr
 
-        /* Copy stack pointer to return register */
-        mov r0, r3
-
-        /* Restore previous cpu mode */
-        msr cpsr_c, r2
+.global cpsr_enable_interrupts
+cpsr_enable_interrupts:
+        /* Read-Modify-Write to change the I bit */
+        mrs r0, cpsr
+        bic r0, r0, #0x80
+        msr cpsr_c, r0
 
         bx lr
+
+.global cpsr_disable_interrupts
+cpsr_disable_interrupts:
+        /* Read-Modify-Write to change the I bit */
+        mrs r0, cpsr
+        orr r0, r0, #0x80
+        msr cpsr_c, r0
+
+        bx lr
+
 
