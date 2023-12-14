@@ -16,4 +16,6 @@ void dbgu_enable_interrupt();
 // checks if the current interrupt was triggered by the dbgu
 int dbgu_interrupt_active();
 
+void dbgu_receive_interrupt_handler();
+
 #endif // !_DBGU_H_

@@ -1,3 +1,4 @@
+#include <data_structures.h>
 #include <dbgu.h>
 #include <mem_addresses.h>
 #include <mem_layout.h>
@@ -29,6 +30,8 @@ struct dbgu {
 
 volatile struct dbgu *const dbgu = (struct dbgu *)DBGU;
 
+volatile struct ring_buffer *receive_buffer;
+
 /*
  * Returns 1 if a bit at the given position at the given address is set.
  */
@@ -41,6 +44,16 @@ int check_status(unsigned int bit_position) {
  */
 void set_status(unsigned int bit_position) { dbgu->cr = 1 << bit_position; }
 
+/**
+ * @brief Initialize the debug unit for receiving characters
+ * and writing them to a ring buffer.
+ */
+void dbgu_initialize() {
+  set_status(RXEN_BIT);
+  receive_buffer =
+      ring_buffer_create(_INTERNAL_DBGU_RECEIVE_BUFFER_SIZE,
+                         (unsigned int *)_INTERNAL_DBGU_RECEIVE_BUFFER_START);
+}
 /*
  * Reads the char in the receive holding register.
  */
@@ -59,18 +72,16 @@ void write_char(char c) { dbgu->thr = c; }
  */
 char dbgu_getc() {
   // enable receive controller
-  set_status(RXEN_BIT);
 
   // wait for incoming character
-  while (!check_status(RXRDY_BIT)) {
-  }
+  unsigned int *c;
+  do {
+    c = ring_buffer_get(receive_buffer);
+  } while (c == 0);
 
-  char input = read_char();
-
+  return *(char *)c;
   // disable read
-  set_status(RXDIS_BIT);
-
-  return input;
+  // set_status(RXDIS_BIT);
 }
 
 /*
@@ -121,3 +132,8 @@ void serial_write_string(char *s) {
 void dbgu_enable_interrupt() { dbgu->ier = 1 << IER_RXRDY_BIT; }
 
 int dbgu_interrupt_active() { return check_status(RXRDY_BIT); }
+
+void dbgu_receive_interrupt_handler() {
+  char c = read_char();
+  ring_buffer_put(receive_buffer, (unsigned int)c);
+}
