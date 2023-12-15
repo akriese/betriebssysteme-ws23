@@ -1,16 +1,7 @@
-#include "memlayout.h"
 #include <mem.h>
 #include <mem_addresses.h>
-
-enum cpu_mode {
-  CPU_MODE_USER = 0x10,
-  CPU_MODE_FIQ = 0x11,
-  CPU_MODE_IRQ = 0x12,
-  CPU_MODE_SVC = 0x13,
-  CPU_MODE_ABT = 0x17,
-  CPU_MODE_UND = 0x1b,
-  CPU_MODE_SYS = 0x1f,
-};
+#include <mem_layout.h>
+#include <system.h>
 
 // defined in system/exceptions_asm.S
 extern char _ivt_start[];

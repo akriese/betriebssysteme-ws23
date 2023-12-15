@@ -6,7 +6,7 @@ _ivt_start:
         ldr pc, jt_prefabort
         ldr pc, jt_dataabort
         ldr pc, jt_unhandled
-        ldr pc, jt_irq
+        ldr pc, [pc, #-0xF20]
         ldr pc, jt_fiq
 
 jt_undef:       .word undef_trampoline

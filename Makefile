@@ -20,7 +20,8 @@ LSCRIPT = kernel.lds
 OBJ = driver/dbgu.o
 OBJ += lib/print.o lib/util.o lib/mem.o
 OBJ += system/main.o system/start.o system/memory_controller.o system/exceptions.o
-OBJ += system/start_asm.o system/exceptions_asm.o system/cpu_asm.o
+OBJ += system/timer.o system/interrupt.o
+OBJ += system/start_asm.o system/exceptions_asm.o system/cpu_asm.o system/interrupt_asm.o
 
 #
 # Konfiguration
@@ -34,7 +35,7 @@ OBJDUMP = $(IMP_LIB) arm-none-eabi-objdump
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=arm920t -O2 -g
 # --unresolved-symbols=ignore-in-object-files
 CFLAGS += -Iinclude
-#LIBGCC := $(shell $(CC) -print-libgcc-file-name)
+LIBGCC := $(shell $(CC) -print-libgcc-file-name)
 
 DEP = $(OBJ:.o=.d)
 

@@ -2,8 +2,6 @@
 
 #include <dbgu.h>
 
-#define HEX_POSITIONS 8 // 1 hex char represents 4 bits; assuming 32bit integers
-
 /*
  * Some function that actually prints a character or sends it via the serial
  * interface
@@ -15,6 +13,9 @@ void _printChar(const char c);
 void _printString(const char *s);
 void _printHex(const int u, const int full);
 void _printAddress(const void *p);
+void _printBinary(const unsigned int d);
+void _printInBase(const unsigned int d, const char bitsPerChar,
+                  const char *alphabet, const char *prefix, const int full);
 
 /*
  * Our printf implementation
@@ -58,6 +59,9 @@ __attribute__((format(printf, 1, 2))) void print(const char *fmt, ...) {
       break;
     case 'p':
       _printAddress(va_arg(arguments, void *));
+      break;
+    case 'b':
+      _printBinary(va_arg(arguments, int));
       break;
     default:
       _printString("Invalid formatter!");
@@ -106,24 +110,39 @@ char _singleHex(int u) {
  * Cuts off leading zeros.
  */
 void _printHex(const int u, const int full) {
-  char hex[HEX_POSITIONS + 1]; // including trailing null terminator
+  _printInBase(u, 4, "0123456789abcdef", "0x", full);
+}
 
-  hex[HEX_POSITIONS] = '\0';
+void _printBinary(const unsigned int d) { _printInBase(d, 1, "01", "0b", 1); }
 
-  int firstIdx = HEX_POSITIONS - 1;
+/**
+ * This only works for bases that are a power of 2 currently.
+ */
+void _printInBase(const unsigned int d, const char bitsPerChar,
+                  const char *alphabet, const char *prefix, const int full) {
+  unsigned int positions = (int)32 / bitsPerChar;
+
+  // mask to get only the last bits of the number for the character
+  const int mask = (1 << bitsPerChar) - 1;
+
+  char output[positions + 1]; // including trailing null terminator
+
+  output[positions] = '\0';
+
+  int firstIdx = positions - 1;
 
   int i;
-  for (i = 0; i < HEX_POSITIONS; ++i) {
-    char res = _singleHex(u >> (i * 4) & 0xF);
-    int idx = HEX_POSITIONS - i - 1;
-    hex[idx] = res;
+  for (i = 0; i < positions; ++i) {
+    char res = alphabet[d >> (i * bitsPerChar) & mask];
+    int idx = positions - i - 1;
+    output[idx] = res;
 
     if (res != '0' || full)
       firstIdx = idx;
   }
 
   // using the string formatting of our own printf to prepend the "0x"
-  print("0x%s", hex + firstIdx);
+  print("%s%s", prefix, output + firstIdx);
 }
 
 void _printAddress(const void *p) { _printHex((int)p, 1); }
