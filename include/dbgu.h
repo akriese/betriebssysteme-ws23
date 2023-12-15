@@ -11,7 +11,7 @@ void dbgu_putc(char c);
 void serial_write_string(char *s);
 
 // enables interrupts on receive
-void dbgu_enable_interrupt();
+void dbgu_enable_interrupts();
 
 // checks if the current interrupt was triggered by the dbgu
 int dbgu_interrupt_active();

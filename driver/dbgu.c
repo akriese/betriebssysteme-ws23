@@ -53,6 +53,8 @@ void dbgu_initialize() {
   receive_buffer =
       ring_buffer_create(_INTERNAL_DBGU_RECEIVE_BUFFER_SIZE,
                          (unsigned int *)_INTERNAL_DBGU_RECEIVE_BUFFER_START);
+
+  dbgu_enable_interrupts();
 }
 /*
  * Reads the char in the receive holding register.
@@ -129,7 +131,7 @@ void serial_write_string(char *s) {
   set_status(TXDIS_BIT);
 }
 
-void dbgu_enable_interrupt() { dbgu->ier = 1 << IER_RXRDY_BIT; }
+void dbgu_enable_interrupts() { dbgu->ier = 1 << IER_RXRDY_BIT; }
 
 int dbgu_interrupt_active() { return check_status(RXRDY_BIT); }
 

@@ -13,7 +13,6 @@ extern void cpsr_enable_interrupts();
 int interrupt_program() {
   print("start of the program\n\r");
   dbgu_initialize();
-  dbgu_enable_interrupt();
   st_activate_pits(1000);
 
   install_interrupt_handlers();
