@@ -75,7 +75,7 @@ void write_char(char c) { dbgu->thr = c; }
 char dbgu_getc() {
   // enable receive controller
 
-  // wait for incoming character
+  // wait for new character in ring buffer
   unsigned int *c;
   do {
     c = ring_buffer_get(receive_buffer);
