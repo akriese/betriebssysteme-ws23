@@ -48,6 +48,4 @@ void install_interrupt_handlers() {
   aic->iecr = 1 << SYS_INTERRUPT;
   aic->smr[SYS_INTERRUPT] = 7; // set highest priority
   aic->svr[SYS_INTERRUPT] = *handle_sys_interrupt;
-
-  // print("address of iecr: %p \n\r", &(aic->iecr));
 }
