@@ -1,4 +1,4 @@
-#include <mem_layout.h>
+#include <mem_layout_asm.h>
 
 .global _start
 _start:
@@ -6,9 +6,10 @@ _start:
 
         bl setup_kernel
 
-        stmfd sp!, {r0 - r15}
+        stmfd sp, {r0 - r15}
+        sub sp, sp, #(4*16)
         mov r0, sp
-        bl register_dump
+        // bl register_dump
         add sp, #64
 
         bl main
