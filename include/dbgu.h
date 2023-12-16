@@ -20,4 +20,8 @@ void dbgu_receive_interrupt_handler();
 
 void dbgu_initialize();
 
+char dbgu_grab_char();
+
+void dbgu_enable();
+
 #endif // !_DBGU_H_

@@ -56,6 +56,9 @@ void dbgu_initialize() {
 
   dbgu_enable_interrupts();
 }
+
+void dbgu_enable() { set_status(RXEN_BIT); }
+
 /*
  * Reads the char in the receive holding register.
  */
@@ -138,4 +141,10 @@ int dbgu_interrupt_active() { return check_status(RXRDY_BIT); }
 void dbgu_receive_interrupt_handler() {
   char c = read_char();
   ring_buffer_put(receive_buffer, (unsigned int)c);
+}
+
+char dbgu_grab_char() {
+  while (!check_status(RXRDY_BIT)) {
+  }
+  return read_char();
 }
