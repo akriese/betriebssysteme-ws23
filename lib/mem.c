@@ -10,3 +10,11 @@ void *memcpy(void *src, void *dest, unsigned int size) {
 
   return dest;
 }
+
+void memset(void *dest, char content, unsigned int size) {
+  char *d = dest;
+
+  while (size--) {
+    *d++ = content;
+  }
+}
