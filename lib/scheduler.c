@@ -5,11 +5,9 @@
 volatile struct thread_management *const thread_management =
     (struct thread_management *)_INTERNAL_THREADS_MANAGEMENT_START;
 
-void scheduler_register_thread();
-
 void scheduler_end_thread();
 
-void *scheduler_next(unsigned int *registers, unsigned int cpsr) {
+volatile void *scheduler_next(unsigned int *registers, unsigned int cpsr) {
   int thread_id = thread_management->active_thread_id;
 
   // save old thread's context to its tcb

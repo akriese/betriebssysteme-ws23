@@ -38,3 +38,21 @@ int thread_create(int (*fun)()) {
 
   return 0;
 }
+
+void thread_finish() {
+  unsigned int finished_thread_id = management->active_thread_id;
+  tcbs[finished_thread_id].in_use = 0;
+
+  scheduler_next_asm(0, 0);
+}
+
+void thread_save_context(unsigned int thread_id, unsigned int *registers) {
+  volatile struct thread_control_block *const tcb = &tcbs[thread_id];
+
+  memcpy(registers, (void *)tcb->registers, 16);
+  tcb->cpsr;
+}
+
+volatile void *thread_get_context(unsigned int thread_id) {
+  return &(tcbs[thread_id]);
+}

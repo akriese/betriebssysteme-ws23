@@ -9,15 +9,13 @@ struct thread_management {
   unsigned int last_created_id;
 };
 
+// IMPORTANT: cpsr has to come after registers due to an assumption
 struct thread_control_block {
   unsigned int registers[16];
   unsigned int cpsr;
   unsigned int in_use;
   unsigned int active;
   unsigned int asleep;
-  // void *sp;
-  // void *lr;
-  // void *pc;
 };
 
 int thread_create(int (*fun)());
@@ -26,6 +24,6 @@ void thread_finish();
 
 void thread_save_context(unsigned int thread_id, unsigned int *registers);
 
-void *thread_load_context(unsigned int thread_id);
+volatile void *thread_get_context(unsigned int thread_id);
 
 #endif /* ifndef _THREAD_H_ */
