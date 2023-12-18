@@ -18,8 +18,14 @@
 #define _INTERNAL_DBGU_RECEIVE_BUFFER_END                                      \
   (_INTERNAL_DBGU_RECEIVE_BUFFER_START + _INTERNAL_DBGU_RECEIVE_BUFFER_SIZE) //
 
+// Thread management object
+#define _INTERNAL_THREADS_MANAGEMENT_START _INTERNAL_DBGU_RECEIVE_BUFFER_END
+#define _INTERNAL_THREADS_MANAGEMENT_SIZE sizeof(struct thread_management)
+#define _INTERNAL_THREADS_MANAGEMENT_END                                       \
+  (_INTERNAL_THREADS_MANAGEMENT_START + _INTERNAL_THREADS_MANAGEMENT_SIZE)
+
 // Thread control blocks
-#define _INTERNAL_THREADS_TCB_ARRAY_START _INTERNAL_DBGU_RECEIVE_BUFFER_END
+#define _INTERNAL_THREADS_TCB_ARRAY_START _INTERNAL_THREADS_MANAGEMENT_END
 #define _INTERNAL_THREADS_TCB_ARRAY_SIZE                                       \
   (sizeof(struct thread_control_block) * MAX_NUM_THREADS)
 #define _INTERNAL_THREADS_TCB_ARRAY_END                                        \
