@@ -17,14 +17,20 @@ volatile void *scheduler_next(unsigned int *registers, unsigned int cpsr) {
   }
 
   // select next available thread to run
-  while (thread_management->used[thread_id % MAX_NUM_THREADS] == 1) {
+  while (thread_management->used[thread_id % MAX_NUM_THREADS] == 0) {
     thread_id++;
   }
 
   // load context of the next thread
-  void *context = thread_get_context(thread_id);
+  volatile void *context = thread_get_context(thread_id);
+
+  thread_management->active_thread_id = thread_id;
 
   return context;
 }
 
 void scheduler_start() { scheduler_next_asm(0, 0); }
+
+void scheduler_register_thread(unsigned int thread_id) {
+  thread_management->used[thread_id] = 1;
+}
