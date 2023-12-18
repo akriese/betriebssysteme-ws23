@@ -14,7 +14,7 @@ volatile struct thread_management *const management =
  * @return 0 on success, 1 on failure (e.g. no free TCB)
  */
 int thread_create(int (*fun)()) {
-  int thread_id = (management->last_created_id + 1) % MAX_NUM_THREADS;
+  unsigned int thread_id = (management->last_created_id + 1) % MAX_NUM_THREADS;
   while (management->used[thread_id] &&
          thread_id != management->last_created_id) {
     thread_id = (thread_id + 1) % MAX_NUM_THREADS;
@@ -30,11 +30,14 @@ int thread_create(int (*fun)()) {
   // reset tcb content to get rid off previous content
   memset(&new_tcb, 0, sizeof(struct thread_management));
 
-  new_tcb.registers[13] = 0;
+  new_tcb.registers[13] = 0; // TODO: find good start for stack
   new_tcb.registers[14] = (unsigned int)thread_finish;
   new_tcb.registers[15] = (unsigned int)fun;
+  new_tcb.cpsr = 0; // TODO: find useful default value for cpsr
 
   management->last_created_id = thread_id;
+
+  scheduler_register_thread(thread_id);
 
   return 0;
 }
