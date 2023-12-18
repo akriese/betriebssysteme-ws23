@@ -5,13 +5,15 @@
 handle_sys_interrupt:
   /* save important registers */
   stmfd sp!, {r0-r15}
-  mov r0, sp
 
   /* dump registers */
   /*bl register_dump*/
 
   /* disable interrupts */
   bl cpsr_disable_interrupts
+
+  mov r0, sp
+  mrs r1, spsr
 
   /* handle interrupt */
   bl system_interrupt_handler

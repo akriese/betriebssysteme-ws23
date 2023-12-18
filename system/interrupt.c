@@ -27,15 +27,19 @@ struct aic {
 
 volatile struct aic *const aic = (struct aic *)AIC;
 
-void timer_interrupt_handler() { print("!\n\r"); }
+// void timer_interrupt_handler() { print("!\n\r"); }
+void timer_interrupt_handler(unsigned int *registers, unsigned int cpsr) {
+  print("!\n\r");
+  scheduler_next_asm();
+}
 
-void system_interrupt_handler() {
+void system_interrupt_handler(unsigned int *registers, unsigned int cpsr) {
   // print("system interrupt received!\n\r");
 
   // read status registers of the system peripherals
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {
-    timer_interrupt_handler();
+    timer_interrupt_handler(registers, cpsr);
   } else if (dbgu_interrupt_active()) {
     dbgu_receive_interrupt_handler();
   }
