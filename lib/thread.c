@@ -1,6 +1,7 @@
 #include <mem.h>
 #include <mem_layout.h>
 #include <scheduler.h>
+#include <system.h>
 #include <thread.h>
 
 volatile struct thread_control_block *const tcbs =
@@ -33,7 +34,7 @@ int thread_create(int (*fun)()) {
   new_tcb.registers[13] = 0; // TODO: find good start for stack
   new_tcb.registers[14] = (unsigned int)thread_finish;
   new_tcb.registers[15] = (unsigned int)fun;
-  new_tcb.cpsr = 0; // TODO: find useful default value for cpsr
+  new_tcb.cpsr = CPU_MODE_USER; // TODO: find useful default value for cpsr
 
   management->last_created_id = thread_id;
 

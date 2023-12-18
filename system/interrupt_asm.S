@@ -4,7 +4,8 @@
 .global handle_sys_interrupt
 handle_sys_interrupt:
   /* save important registers */
-  stmfd sp!, {r0-r15}
+  stmfd sp, {r0-r15}
+  sub sp, sp, #64
 
   /* dump registers */
   /*bl register_dump*/

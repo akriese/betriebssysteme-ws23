@@ -1,6 +1,7 @@
 #include <dbgu.h>
 #include <mem_addresses.h>
 #include <print.h>
+#include <system.h>
 
 #define SYS_INTERRUPT 1
 
@@ -30,7 +31,7 @@ volatile struct aic *const aic = (struct aic *)AIC;
 // void timer_interrupt_handler() { print("!\n\r"); }
 void timer_interrupt_handler(unsigned int *registers, unsigned int cpsr) {
   print("!\n\r");
-  scheduler_next_asm();
+  scheduler_next_asm(registers, cpsr);
 }
 
 void system_interrupt_handler(unsigned int *registers, unsigned int cpsr) {
