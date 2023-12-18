@@ -23,17 +23,22 @@ volatile struct system_timer *const system_timer =
  * @param ms Duration in milliseconds.
  * @return Timer intervall that corresponds to the given milliseconds.
  */
-unsigned int ms_to_intervall(unsigned short ms) { return 32768 * ms / 1000; }
+unsigned int ms_to_intervall(unsigned short ms) { return 32767 * ms / 1000; }
 
 /*
- * Time can be a maximum clock cycles of 65536.
+ * Time can be a maximum clock cycles of 65535.
  *
  * As the clock speed is about 32kHz, this would be 2 seconds.
  *
  */
 void st_activate_pits(unsigned short ms) {
-  system_timer->pimr = ms_to_intervall(ms); // set the time
-  system_timer->ier = 1 << 0; // set the bit for the PITS interrupt
+  unsigned int intervall = ms_to_intervall(ms);
+  if (intervall > 0xffff) {
+    print("Reducing the intervall down to %d (max ms=2000)\n\r", 0xffff);
+    intervall = 0xffff;
+  }
+  system_timer->pimr = intervall; // set the time
+  system_timer->ier = 1 << 0;     // set the bit for the PITS interrupt
 }
 
 int st_interrupt_active() { return system_timer->sr & 1 << 0; }
