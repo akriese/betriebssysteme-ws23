@@ -9,4 +9,24 @@ void scheduler_register_thread();
 
 void scheduler_end_thread();
 
-void scheduler_next();
+void *scheduler_next(unsigned int *registers, unsigned int cpsr) {
+  int thread_id = thread_management->active_thread_id;
+
+  // save old thread's context to its tcb
+  // but only if they are given
+  if (registers == 0 && cpsr == 0) {
+    thread_save_context(thread_id, registers);
+  }
+
+  // select next available thread to run
+  while (thread_management->used[thread_id % MAX_NUM_THREADS] == 1) {
+    thread_id++;
+  }
+
+  // load context of the next thread
+  void *context = thread_get_context(thread_id);
+
+  return context;
+}
+
+void scheduler_start() { scheduler_next_asm(0, 0); }
