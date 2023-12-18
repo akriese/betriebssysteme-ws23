@@ -8,7 +8,7 @@
 
 int main() {
   print("Welcome to shrineOS!\n\n\r");
-  print("Pick an example procedure to run[default: %d]:\n\r", N_PROGRAMS);
+  print("Pick an example procedure to run: [default: %d]\n\r", N_PROGRAMS);
 
   const char *descriptions[N_PROGRAMS] = {
       "Test in and output of the DBGU! (u01)",
@@ -35,10 +35,13 @@ int main() {
     return exception_program();
     break;
   case ('3'):
+    return interrupt_program();
+    break;
+  case ('4'):
     // falling through to default
 
   default:
-    return interrupt_program();
+    return thread_program();
   }
 
   return 1;
