@@ -48,16 +48,14 @@ void thread_finish() {
   unsigned int finished_thread_id = management->active_thread_id;
   tcbs[finished_thread_id].in_use = 0;
 
-  scheduler_next_asm(0, 0);
+  // scheduler_next_asm(0);
 }
 
-void thread_save_context(unsigned int thread_id, unsigned int *registers) {
+void thread_save_context(unsigned int thread_id, unsigned int *context) {
   volatile struct thread_control_block *const tcb = &tcbs[thread_id];
 
   memcpy(context, (void *)tcb, 17);
   tcb->cpsr;
 }
 
-volatile void *thread_get_context(unsigned int thread_id) {
-  return &(tcbs[thread_id]);
-}
+void *thread_get_context(unsigned int thread_id) { return &tcbs[thread_id]; }

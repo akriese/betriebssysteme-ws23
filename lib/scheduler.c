@@ -1,3 +1,4 @@
+#include <mem.h>
 #include <mem_layout.h>
 #include <scheduler.h>
 #include <thread.h>
@@ -7,13 +8,13 @@ volatile struct thread_management *const thread_management =
 
 void scheduler_end_thread();
 
-volatile void *scheduler_next(unsigned int *registers, unsigned int cpsr) {
+void scheduler_next(unsigned int *context) {
   int thread_id = thread_management->active_thread_id;
 
   // save old thread's context to its tcb
   // but only if they are given
-  if (registers == 0 && cpsr == 0) {
-    thread_save_context(thread_id, registers);
+  if (context == 0) {
+    thread_save_context(thread_id, context);
   }
 
   // select next available thread to run
@@ -22,7 +23,7 @@ volatile void *scheduler_next(unsigned int *registers, unsigned int cpsr) {
   }
 
   // load context of the next thread
-  volatile void *context = thread_get_context(thread_id);
+  void *new_ctx = thread_get_context(thread_id);
 
   thread_management->active_thread_id = thread_id;
 

@@ -27,6 +27,6 @@ void thread_finish();
 
 void thread_save_context(unsigned int thread_id, unsigned int *registers);
 
-volatile void *thread_get_context(unsigned int thread_id);
+void *thread_get_context(unsigned int thread_id);
 
 #endif /* ifndef _THREAD_H_ */
