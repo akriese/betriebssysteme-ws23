@@ -8,6 +8,11 @@ volatile struct thread_management *const thread_management =
 
 void scheduler_end_thread();
 
+/**
+ * @brief Replaces one thread context with the next thread's context
+ *
+ * @param context Pointer where to read and write the context from/to
+ */
 void scheduler_next(unsigned int *context) {
   int thread_id = thread_management->active_thread_id;
 
@@ -39,6 +44,7 @@ void scheduler_next(unsigned int *context) {
 
   // load context of the next thread
   void *new_ctx = thread_get_context(thread_id);
+  memcpy(context, new_ctx, 17 * 4);
 
   print("i was here: %d -> %d", thread_management->active_thread_id, thread_id);
   thread_management->active_thread_id = thread_id;
