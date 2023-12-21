@@ -4,6 +4,8 @@
 #include <mem_layout_asm.h>
 #include <thread.h>
 
+#define THREAD_STACK_SIZE (4 * KiB)
+
 /**
  * Some OS buffers and storage data structures.
  *
@@ -30,6 +32,12 @@
   (sizeof(struct thread_control_block) * MAX_NUM_THREADS)
 #define _INTERNAL_THREADS_TCB_ARRAY_END                                        \
   (_INTERNAL_THREADS_TCB_ARRAY_START + _INTERNAL_THREADS_TCB_ARRAY_SIZE)
+
+// Thread stacks
+#define _INTERNAL_THREADS_STACKS_START _INTERNAL_THREADS_TCB_ARRAY_END
+#define _INTERNAL_THREADS_STACKS_SIZE (THREAD_STACK_SIZE * MAX_NUM_THREADS)
+#define _INTERNAL_THREADS_STACKS_END                                           \
+  (_INTERNAL_THREADS_STACKS_START + _INTERNAL_THREADS_STACKS_SIZE)
 
 #define _INTERNAL_STORAGE_AREA_END 0x300000
 
