@@ -24,7 +24,7 @@ OBJ += lib/programs/dbgu.o lib/programs/exceptions.o lib/programs/interrupts.o l
 OBJ += system/main.o system/start.o system/memory_controller.o system/exceptions.o
 OBJ += system/timer.o system/interrupt.o
 OBJ += system/start_asm.o system/exceptions_asm.o system/cpu_asm.o system/interrupt_asm.o
-OBJ += system/thread_asm.o
+#OBJ += system/thread_asm.o
 
 
 #

@@ -11,8 +11,11 @@ struct thread_management {
 
 // IMPORTANT: cpsr has to come after registers due to an assumption
 struct thread_control_block {
-  unsigned int registers[16];
+  unsigned int sp;
+  unsigned int lr;
+  unsigned int pc;
   unsigned int cpsr;
+  unsigned int registers[13];
   unsigned int in_use;
   unsigned int active;
   unsigned int asleep;

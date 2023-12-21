@@ -11,6 +11,7 @@ alias N = nexti
 break setup_kernel
 break _Lend
 break scheduler_next_asm
+break handle_sys_interrupt
 
 break *0x0
 break *0x4

@@ -31,9 +31,10 @@ int thread_create(int (*fun)()) {
   // reset tcb content to get rid off previous content
   memset(&new_tcb, 0, sizeof(struct thread_management));
 
-  new_tcb.registers[13] = 0; // TODO: find good start for stack
-  new_tcb.registers[14] = (unsigned int)thread_finish;
-  new_tcb.registers[15] = (unsigned int)fun;
+  new_tcb.sp = _INTERNAL_THREADS_STACKS_START +
+               THREAD_STACK_SIZE * thread_id; // TODO: find good start for stack
+  new_tcb.lr = (unsigned int)thread_finish;
+  new_tcb.pc = (unsigned int)fun;
   new_tcb.cpsr = CPU_MODE_USER; // TODO: find useful default value for cpsr
 
   management->last_created_id = thread_id;
@@ -53,7 +54,7 @@ void thread_finish() {
 void thread_save_context(unsigned int thread_id, unsigned int *registers) {
   volatile struct thread_control_block *const tcb = &tcbs[thread_id];
 
-  memcpy(registers, (void *)tcb->registers, 16);
+  memcpy(context, (void *)tcb, 17);
   tcb->cpsr;
 }
 
