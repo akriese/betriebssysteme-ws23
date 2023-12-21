@@ -1,13 +1,19 @@
 #include "system.h"
 #include <dbgu.h>
+#include <print.h>
+#include <scheduler.h>
 #include <thread.h>
 
 // this kind of closure will only work in gcc
 int (*print_char_repeatedly(char c))(void) {
   int inside(void) {
     // print the character endlessly
-    while (1) {
+    volatile int c = 6;
+    while (c-- > 0) {
       print("%c", c);
+      volatile int i;
+      for (i = 0; i < 1000000; i++) {
+      }
     }
 
     return 0;
@@ -17,9 +23,6 @@ int (*print_char_repeatedly(char c))(void) {
 }
 
 int thread_spawner() {
-  print("Type characters to start new threads that take turns to print the "
-        "typed characters!\n\r");
-
   while (1) {
     char c = dbgu_getc();
 
@@ -33,6 +36,16 @@ int thread_spawner() {
   }
 
   return 0;
+}
+
+int idling() {
+  print("idle thread started");
+  while (1) {
+    int i;
+    for (i = 0; i < 100000; i++) {
+      print("idle");
+    }
+  }
 }
 
 int str_to_int(char *s) {
@@ -51,18 +64,11 @@ int thread_program() {
   // enable dbug interrupts
   // enable interrupts in the cpu
   cpsr_enable_interrupts();
-
-  // initialize the dbgu and enable its interrupts
-  dbgu_initialize();
-
-  // install handler for system interrupts (dbgu and system timer, currently)
-  install_interrupt_handlers();
-
   print("Enter the intervall of thread switches [in ms] and press ENTER: > ");
   char number_string[6];
   unsigned int digit_counter = 0;
   do {
-    char c = dbgu_getc();
+    char c = dbgu_grab_char();
     if (c == 13 || c == 10) {
       number_string[digit_counter] = '\0';
       break;
@@ -79,12 +85,23 @@ int thread_program() {
   int intervall = str_to_int(number_string);
   print("\n\rYou chose a switch intervall of %d ms\n\r", intervall);
 
-  thread_create(thread_spawner);
+  // initialize the dbgu and enable its interrupts
+  dbgu_initialize();
+
+  // install handler for system interrupts (dbgu and system timer, currently)
+  install_interrupt_handlers();
+
+  // initialize the scheduler
+  scheduler_init(idling);
 
   // enable system timer interrupts and set time
   st_activate_pits(intervall);
 
-  scheduler_start();
+  print("Type characters to start new threads that take turns to print the "
+        "typed characters!\n\r");
+
+  while (1) {
+  }
 
   return 0;
 }
