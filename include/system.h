@@ -17,4 +17,6 @@ int st_interrupt_active();
 
 void install_interrupt_handlers();
 
+void cpsr_enable_interrupts();
+
 #endif /* ifndef _SYSTEM_H_ */
