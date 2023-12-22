@@ -23,12 +23,9 @@ struct thread_control_block {
   unsigned int pc;
   unsigned int cpsr;
   unsigned int registers[13];
-  unsigned int in_use;
-  unsigned int active;
-  unsigned int asleep;
 };
 
-int thread_create(int (*fun)());
+int thread_create(int (*fun)(void *), void *input);
 
 void thread_finish();
 

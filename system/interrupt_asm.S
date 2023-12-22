@@ -53,12 +53,16 @@ handle_sys_interrupt:
   stmfd sp, {r0-r12, lr}
   sub sp, sp, #(14*4)
 
+  /* disable interrupts */
+  bl cpsr_disable_interrupts
+
   @ save saved psr
   mrs r4, spsr
   /* load saved pc to r2 */
   ldr r2, [sp, #(13*4)]
+  @sub r2, #8
 
-  /* push sp, lr, pc, cpsr */
+  /* push pc, cpsr */
   stmfd sp!, {r2, r4}
 
   mov r0, #0x1f
@@ -67,19 +71,16 @@ handle_sys_interrupt:
   /* Stack looks like: (left is at higher address)
   pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
 
-  /* disable interrupts */
-  bl cpsr_disable_interrupts
-
   mov r0, sp
 
   /* handle interrupt */
   bl system_interrupt_handler
 
-  /* re-enable interrupts */
-  bl cpsr_enable_interrupts
-
   /* Stack looks like: (left is at higher address)
   pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+
+  /* re-enable interrupts */
+  bl cpsr_enable_interrupts
 
   mov r0, #0x1f
   bl set_banked_registers
@@ -94,10 +95,7 @@ handle_sys_interrupt:
   /* restore saved registers */
   ldmfd sp, {r0-r12}
 
-  add sp, sp, #(13*4)
+  add sp, sp, #(14*4)
 
-  subs pc, lr, #4^
-
-
-
+  subs pc, lr, #0
 

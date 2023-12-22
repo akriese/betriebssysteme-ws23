@@ -43,7 +43,8 @@ void system_interrupt_handler(unsigned int *context) {
   if (st_interrupt_active()) {
     timer_interrupt_handler(context);
   } else if (dbgu_interrupt_active()) {
-    dbgu_receive_interrupt_handler();
+    // dbgu_receive_interrupt_handler();
+    dbgu_create_thread_on_interrupt();
   }
 
   // finally, signal that the interrupt handling is over

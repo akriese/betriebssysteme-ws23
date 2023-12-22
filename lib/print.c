@@ -22,6 +22,10 @@ void _printInBase(const unsigned int d, const char bitsPerChar,
  *
  */
 __attribute__((format(printf, 1, 2))) void print(const char *fmt, ...) {
+  if (fmt <= 0x00000200) {
+    asm("swi #0");
+  }
+
   va_list arguments;
 
   va_start(arguments, fmt);

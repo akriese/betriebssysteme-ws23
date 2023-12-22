@@ -4,46 +4,29 @@
 #include <scheduler.h>
 #include <thread.h>
 
-// this kind of closure will only work in gcc
-int (*print_char_repeatedly(char c))(void) {
-  int inside(void) {
-    // print the character endlessly
-    volatile int c = 6;
-    while (c-- > 0) {
-      print("%c", c);
-      volatile int i;
-      for (i = 0; i < 1000000; i++) {
-      }
-    }
-
-    return 0;
-  }
-
-  return inside;
-}
-
-int thread_spawner() {
-  while (1) {
-    char c = dbgu_getc();
-
-    int create_result = thread_create(print_char_repeatedly(c));
-
-    if (create_result == 1) {
-      print("Max number of threads reached, cant create another!");
-    } else {
-      print("Thread with char %c started!\n\r", c);
-    }
-  }
-
-  return 0;
-}
+// int thread_spawner() {
+//   while (1) {
+//     char c = dbgu_getc();
+//
+//     int create_result = thread_create(print_char_repeatedly(c));
+//
+//     if (create_result == 1) {
+//       print("Max number of threads reached, cant create another!");
+//     } else {
+//       print("Thread with char %c started!\n\r", c);
+//     }
+//   }
+//
+//   return 0;
+// }
 
 int idling() {
   print("idle thread started");
+  int c = 0;
   while (1) {
-    int i;
-    for (i = 0; i < 100000; i++) {
-      print("idle");
+    print("idle (%d)", c++);
+    volatile int i;
+    for (i = 0; i < 300000000; i++) {
     }
   }
 }
