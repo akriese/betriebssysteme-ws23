@@ -31,7 +31,7 @@ volatile struct aic *const aic = (struct aic *)AIC;
 
 // void timer_interrupt_handler() { print("!\n\r"); }
 void timer_interrupt_handler(unsigned int *context) {
-  print("!\n\r");
+  print("!");
   scheduler_next(context);
 }
 

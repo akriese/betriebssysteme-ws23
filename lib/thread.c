@@ -26,11 +26,6 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
   new_tcb->registers[0] = (unsigned int)input;
 
   management->last_created_id = id;
-
-  print("Thread with id %d created!\n\r", id);
-  // print_context(new_tcb);
-  // register_dump(new_tcb + 4);
-  print("%X", new_tcb->registers[0]);
 }
 
 /**
@@ -61,7 +56,6 @@ int thread_create(int (*fun)(void *), void *input) {
 void thread_finish() {
   unsigned int finished_thread_id = management->active_thread_id;
   management->status[finished_thread_id] = TCB_UNUSED;
-  print("Thread %d finished!\n\r", finished_thread_id);
 }
 
 void thread_save_context(unsigned int thread_id, unsigned int *context) {
@@ -77,11 +71,4 @@ void create_idle_thread(int (*idle_fun)()) {
   __create_thread(id, idle_fun, 0);
 
   management->status[id] = IDLE;
-}
-
-void print_context(void *context) {
-  struct thread_control_block *tcb = (struct thread_control_block *)context;
-
-  print("sp: %x; lr: %x; pc: %x; cpsr: %x\n\r", tcb->sp, tcb->lr, tcb->pc,
-        tcb->cpsr);
 }

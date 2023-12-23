@@ -20,12 +20,6 @@ void scheduler_next(unsigned int *context) {
   if (thread_id == -1) {
     thread_id = idle_id;
   } else {
-    print("current context: ");
-    print_context(context);
-    // register_dump(context + 4);
-    print("stored context: ");
-    print_context(thread_get_context(thread_id));
-
     // save old thread's context to its tcb
     // but only if they are given and the thread is active (not finished)
     if (context != 0 && thread_management->status[thread_id] != TCB_UNUSED) {
@@ -63,14 +57,8 @@ void scheduler_next(unsigned int *context) {
     void *new_ctx = thread_get_context(thread_id);
     memcpy(new_ctx, context, 17 * 4);
 
-    print("new context: ");
-    print_context(context);
-    // register_dump(context + 4);
-    print("i was here: %d -> %d:\n\r", thread_management->active_thread_id,
-          thread_id);
     thread_management->active_thread_id = thread_id;
-  } else {
-    print("No context switch!\n\r");
+    print("\n\r");
   }
 }
 

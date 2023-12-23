@@ -152,7 +152,7 @@ char dbgu_grab_char() {
 // this kind of closure will only work in gcc
 int print_char_repeatedly(void *input) {
   const char x = *(char *)input;
-  print("THREAD with %c (%x) started to execute (%p)\n\r", x, x, input);
+
   // print the character 6 times with small pauses
   volatile int c = 6;
   while (c-- > 0) {
