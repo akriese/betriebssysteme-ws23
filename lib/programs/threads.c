@@ -4,27 +4,10 @@
 #include <scheduler.h>
 #include <thread.h>
 
-// int thread_spawner() {
-//   while (1) {
-//     char c = dbgu_getc();
-//
-//     int create_result = thread_create(print_char_repeatedly(c));
-//
-//     if (create_result == 1) {
-//       print("Max number of threads reached, cant create another!");
-//     } else {
-//       print("Thread with char %c started!\n\r", c);
-//     }
-//   }
-//
-//   return 0;
-// }
-
 int idling() {
-  print("idle thread started");
   int c = 0;
   while (1) {
-    print("idle (%d)", c++);
+    print("idle... (%d)   \r", c++);
     volatile int i;
     for (i = 0; i < 300000000; i++) {
     }
@@ -43,11 +26,8 @@ int str_to_int(char *s) {
 }
 
 int thread_program() {
-  // enable interrupts
-  // enable dbug interrupts
-  // enable interrupts in the cpu
-  cpsr_enable_interrupts();
-  print("Enter the intervall of thread switches [in ms] and press ENTER: > ");
+  print("Enter the intervall of thread switches [in ms] and press ENTER "
+        "[default: 1000]: > ");
   char number_string[6];
   unsigned int digit_counter = 0;
   do {
@@ -65,7 +45,7 @@ int thread_program() {
     }
   } while (1);
 
-  int intervall = str_to_int(number_string);
+  int intervall = digit_counter == 0 ? 1000 : str_to_int(number_string);
   print("\n\rYou chose a switch intervall of %d ms\n\r", intervall);
 
   // initialize the dbgu and enable its interrupts
@@ -80,11 +60,10 @@ int thread_program() {
   // enable system timer interrupts and set time
   st_activate_pits(intervall);
 
+  cpsr_enable_interrupts();
+
   print("Type characters to start new threads that take turns to print the "
         "typed characters!\n\r");
-
-  while (1) {
-  }
 
   return 0;
 }
