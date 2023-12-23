@@ -41,11 +41,14 @@
 #define _INTERNAL_THREADS_TCB_ARRAY_END                                        \
   (_INTERNAL_THREADS_TCB_ARRAY_START + _INTERNAL_THREADS_TCB_ARRAY_SIZE)
 
-// Thread stacks
+// Thread stacks; the stacks lie directly next to each other, so a stack
+// overflow could lead to undefined behaviour in other threads.
+// We offset the end by 4 to make sure the last thread's stack start
+// does not overlap with next internal memory structure
 #define _INTERNAL_THREADS_STACKS_START _INTERNAL_THREADS_TCB_ARRAY_END
 #define _INTERNAL_THREADS_STACKS_SIZE (THREAD_STACK_SIZE * MAX_NUM_THREADS)
 #define _INTERNAL_THREADS_STACKS_END                                           \
-  (_INTERNAL_THREADS_STACKS_START + _INTERNAL_THREADS_STACKS_SIZE)
+  (_INTERNAL_THREADS_STACKS_START + _INTERNAL_THREADS_STACKS_SIZE + 4)
 
 #define _INTERNAL_STORAGE_AREA_END 0x23000000
 
