@@ -17,6 +17,8 @@ break idling
 # break .somelabel
 # break print
 break dbgu_create_thread_on_interrupt
+break sys_call_handler
+break thread_finish
 
 break lib/programs/threads.c:27
 
