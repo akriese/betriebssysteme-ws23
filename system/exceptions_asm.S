@@ -23,6 +23,25 @@ jt_unhandled:   .word unhandled_trampoline
 .global _ivt_end
 _ivt_end:
 
+.global restore_context
+restore_context:
+        /* Stack looks like: (left is at higher address)
+        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+
+        mov r0, #0x1f
+        bl set_banked_registers
+
+        @ load pc and cpsr
+        ldmfd sp!, {r0, r1}
+
+        msr spsr_c, r1
+        mov lr, r0
+
+        /* restore saved registers */
+        ldmfd sp!, {r0-r12}
+
+        movs pc, lr
+
 unhandled_trampoline:
         b _Lend
 
@@ -72,27 +91,7 @@ swi_trampoline:
         mov r1, sp @ context pointer
         bl swi_handler
 
-        /* Stack looks like: (left is at higher address)
-        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
-
-        /* re-enable interrupts */
-        bl cpsr_enable_interrupts
-
-        mov r0, #0x1f
-        bl set_banked_registers
-
-        @ load pc and cpsr
-        ldmfd sp!, {r0, r1}
-
-        msr spsr_c, r1
-        mov lr, r0
-
-        /* restore saved registers */
-        ldmfd sp!, {r0-r12}
-
-        movs pc, lr
-
-
+        b restore_context
 
 prefabort_trampoline:
         /* save registers to stack */
