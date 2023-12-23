@@ -59,12 +59,10 @@ void thread_finish() {
 }
 
 void thread_save_context(unsigned int thread_id, unsigned int *context) {
-  struct thread_control_block *tcb = &tcbs[thread_id];
-
-  memcpy(context, (void *)tcb, 17 * 4);
+  memcpy(context, &tcbs[thread_id], sizeof(struct thread_control_block));
 }
 
-void *thread_get_context(unsigned int thread_id) { return &(tcbs[thread_id]); }
+void *thread_get_context(unsigned int thread_id) { return &tcbs[thread_id]; }
 
 void create_idle_thread(int (*idle_fun)()) {
   unsigned int id = MAX_NUM_THREADS - 1;

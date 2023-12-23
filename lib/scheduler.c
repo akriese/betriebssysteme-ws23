@@ -55,7 +55,7 @@ void scheduler_next(unsigned int *context) {
   if (thread_id != thread_management->active_thread_id) {
     // load context of the next thread
     void *new_ctx = thread_get_context(thread_id);
-    memcpy(new_ctx, context, 17 * 4);
+    memcpy(new_ctx, context, sizeof(struct thread_control_block));
 
     thread_management->active_thread_id = thread_id;
     print("\n\r");
