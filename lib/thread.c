@@ -19,7 +19,7 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
   memset(new_tcb, 0, sizeof(struct thread_control_block));
 
   new_tcb->sp = _INTERNAL_THREADS_STACKS_START +
-                THREAD_STACK_SIZE * id; // TODO: find good start for stack
+                THREAD_STACK_SIZE * (id + 1); // TODO: find good start for stack
   new_tcb->lr = (unsigned int)sys_call_exit_thread;
   new_tcb->pc = (unsigned int)fun;
   new_tcb->cpsr = CPU_MODE_USER; // TODO: find useful default value for cpsr
