@@ -7,18 +7,14 @@
 .global handle_sys_interrupt
 handle_sys_interrupt:
         /* save important registers; IRQ mode lr is the usr mode's pc */
-        stmfd sp!, {r0-r12, lr}
-
-        /* disable interrupts */
-        bl cpsr_disable_interrupts
+        stmfd sp!, {r0-r12}
 
         @ save saved psr
-        mrs r4, spsr
-        /* load saved pc to r2 */
-        ldr r2, [sp, #(13*4)]
+        mrs r1, spsr
+        mov r0, lr
 
         /* push pc, cpsr */
-        stmfd sp!, {r2, r4}
+        stmfd sp!, {r0, r1}
 
         mov r0, #0x1f
         bl get_banked_registers
