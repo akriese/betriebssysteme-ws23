@@ -1,3 +1,6 @@
+.extern get_banked_registers
+.extern set_banked_registers
+
 .global _ivt_start
 _ivt_start:
         ldr pc, jt_unhandled
@@ -40,14 +43,56 @@ undef_trampoline:
         b _Lend
 
 swi_trampoline:
-        /* save registers to stack */
-        stmdb sp, {r0-r15}
-        sub sp, sp, #(16*4)
+        /* save important registers; IRQ mode lr is the usr mode's pc */
+        stmfd sp!, {r0-r12, lr}
 
-        mov r0, sp
+        @ load the causing swi instruction to retrieve the swi number
+        ldr r8, [lr,#-4]
+        bic r8, r8, #0xFF000000 @ only use the last 3 bytes of the instruction
+
+        /* disable interrupts */
+        @bl cpsr_disable_interrupts
+
+        @ save saved psr
+        mrs r4, spsr
+        /* load saved pc to r2 */
+        ldr r2, [sp, #(13*4)]
+        @sub r2, #8
+
+        /* push pc, cpsr */
+        stmfd sp!, {r2, r4}
+
+        mov r0, #0x1f
+        bl get_banked_registers
+
+        /* Stack looks like: (left is at higher address)
+        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+
+        mov r0, r8 @ swi number
+        mov r1, sp @ context pointer
         bl swi_handler
 
-        b _Lend
+        /* Stack looks like: (left is at higher address)
+        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+
+        /* re-enable interrupts */
+        bl cpsr_enable_interrupts
+
+        mov r0, #0x1f
+        bl set_banked_registers
+
+        @ load pc and cpsr
+        ldmfd sp!, {r0, r1}
+
+        msr spsr_c, r1
+        mov lr, r0
+
+        /* restore saved registers */
+        ldmfd sp!, {r0-r12}
+
+        movs pc, lr
+
+
 
 prefabort_trampoline:
         /* save registers to stack */

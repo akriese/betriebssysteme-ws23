@@ -1,51 +1,7 @@
 .extern system_interrupt_handler
 .extern register_dump
-
-/*
-r0 = cpu mode to access
-
-returns pointer to stack where sp and lr are saved
-*/
-get_banked_registers:
-  @ switch to sys mode to grab sp and lr
-  mrs r2, cpsr
-  bic r3, r2, #0x1f
-  orr r3, r3, r0
-  msr cpsr_c, r3
-
-  mov r4, sp
-  mov r5, lr
-
-  msr cpsr_c, r2
-
-  stmfd sp!, {r4, r5}
-
-  mov r0, sp
-
-  bx lr
-
-
-/*
-r0 = cpu mode to set registers in
-
-Assumes, that sp points to the two banked values. Also, changes the sp like a double pop
-*/
-set_banked_registers:
-  @ write user mode sp and lr; switch into sys mode for that
-  ldmfd sp!, {r1, r4}
-
-  mrs r2, cpsr
-  bic r3, r2, #0x1f
-  orr r3, r3, r0
-  msr cpsr_c, r3
-
-  mov sp, r1
-  mov lr, r4
-
-  msr cpsr_c, r2
-
-  bx lr
-
+.extern get_banked_registers
+.extern set_banked_registers
 
 .global handle_sys_interrupt
 handle_sys_interrupt:
