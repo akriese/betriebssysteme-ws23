@@ -16,7 +16,7 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
   struct thread_control_block *new_tcb = &tcbs[id];
 
   // reset tcb content to get rid off previous content
-  memset(new_tcb, 0, sizeof(struct thread_management));
+  memset(new_tcb, 0, sizeof(struct thread_control_block));
 
   new_tcb->sp = _INTERNAL_THREADS_STACKS_START +
                 THREAD_STACK_SIZE * id; // TODO: find good start for stack
