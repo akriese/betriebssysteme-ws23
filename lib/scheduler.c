@@ -13,7 +13,7 @@ void scheduler_end_thread();
  *
  * @param context Pointer where to read and write the context from/to
  */
-void scheduler_next(unsigned int *context) {
+void scheduler_next(void *context) {
   int thread_id = thread_management->active_thread_id;
   const unsigned int idle_id = MAX_NUM_THREADS - 1;
 

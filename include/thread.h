@@ -29,7 +29,7 @@ int thread_create(int (*fun)(void *), void *input);
 
 void thread_finish();
 
-void thread_save_context(unsigned int thread_id, unsigned int *registers);
+void thread_save_context(unsigned int thread_id, void *context);
 
 void *thread_get_context(unsigned int thread_id);
 

@@ -52,7 +52,7 @@ void dbgu_initialize() {
   set_status(RXEN_BIT);
   receive_buffer =
       ring_buffer_create(_INTERNAL_DBGU_RECEIVE_BUFFER_SIZE,
-                         (unsigned int *)_INTERNAL_DBGU_RECEIVE_BUFFER_START);
+                         (void *)_INTERNAL_DBGU_RECEIVE_BUFFER_START);
 
   dbgu_enable_interrupts();
 }

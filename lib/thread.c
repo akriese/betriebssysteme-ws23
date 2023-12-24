@@ -58,7 +58,7 @@ void thread_finish() {
   management->status[finished_thread_id] = TCB_UNUSED;
 }
 
-void thread_save_context(unsigned int thread_id, unsigned int *context) {
+void thread_save_context(unsigned int thread_id, void *context) {
   memcpy(context, &tcbs[thread_id], sizeof(struct thread_control_block));
 }
 
