@@ -63,31 +63,28 @@ undef_trampoline:
 
 swi_trampoline:
         /* save important registers; IRQ mode lr is the usr mode's pc */
-        stmfd sp!, {r0-r12, lr}
-
-        @ load the causing swi instruction to retrieve the swi number
-        ldr r8, [lr,#-4]
-        bic r8, r8, #0xFF000000 @ only use the last 3 bytes of the instruction
+        stmfd sp!, {r0-r12}
 
         /* disable interrupts */
         @bl cpsr_disable_interrupts
 
         @ save saved psr
-        mrs r4, spsr
-        /* load saved pc to r2 */
-        ldr r2, [sp, #(13*4)]
-        @sub r2, #8
+        mrs r1, spsr
+        /* load saved pc to r0 */
+        mov r0, lr
 
-        /* push pc, cpsr */
-        stmfd sp!, {r2, r4}
+        /* push pc (lr), cpsr */
+        stmfd sp!, {r0, r1}
 
         mov r0, #0x1f
         bl get_banked_registers
 
-        /* Stack looks like: (left is at higher address)
-        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+        @ retrieve lr; 2 ints (banked regsiters) have been written since lr was pushed
+        ldr lr, [sp, #8]
 
-        mov r0, r8 @ swi number
+        @ load the causing swi instruction to retrieve the swi number
+        ldr r0, [lr, #-4]
+        bic r0, r0, #0xFF000000 @ only use the last 3 bytes of the instruction
         mov r1, sp @ context pointer
         bl swi_handler
 
