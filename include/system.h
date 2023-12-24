@@ -11,11 +11,20 @@ enum cpu_mode {
   CPU_MODE_SYS = 0x1f,
 };
 
+enum interrupt_handler_routines {
+  SYSTEM_TIMER_HANDLER,
+  DBGU_RECEIVE_HANDLER,
+  _INTERRUPT_HANDLER_ROUTINES_END // used to find out the number of routines
+};
+
 void st_activate_pits(unsigned short ms);
 
 int st_interrupt_active();
 
-void install_interrupt_handlers();
+void init_sys_interrupts();
+
+void register_interrupt_routines(enum interrupt_handler_routines routine,
+                                 void (*handler)(void *));
 
 void cpsr_enable_interrupts();
 

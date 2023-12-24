@@ -4,11 +4,10 @@
 
 extern void cpsr_enable_interrupts();
 
+void timer_interrupt_printer() { print("!\n\r"); }
+
 int interrupt_program() {
   print("start of the initialization\n\r");
-
-  // enable interrupts in the cpu
-  cpsr_enable_interrupts();
 
   // initialize the dbgu and enable its interrupts
   dbgu_initialize();
@@ -16,8 +15,16 @@ int interrupt_program() {
   // activate the system timer and enable its interrupts
   st_activate_pits(1000); // interrupt about every second
 
-  // install handler for system interrupts (dbgu and system timer, currently)
-  install_interrupt_handlers();
+  // install asm handler for system interrupts
+  init_sys_interrupts();
+
+  // initialize the IRQ routines for receiving dbgu chars and system timer fires
+  register_interrupt_routines(DBGU_RECEIVE_HANDLER,
+                              dbgu_receive_interrupt_handler);
+  register_interrupt_routines(SYSTEM_TIMER_HANDLER, timer_interrupt_printer);
+
+  // enable interrupts in the cpu
+  cpsr_enable_interrupts();
 
   print("setup done!\n\r");
 

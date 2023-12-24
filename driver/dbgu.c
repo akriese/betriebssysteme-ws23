@@ -148,35 +148,3 @@ char dbgu_grab_char() {
   }
   return read_char();
 }
-
-// this kind of closure will only work in gcc
-int print_char_repeatedly(void *input) {
-  const char x = *(char *)input;
-
-  // print the character 6 times with small pauses
-  volatile int c = 6;
-  while (c-- > 0) {
-    print("%c", x);
-    volatile int i;
-    for (i = 0; i < 90000000; i++) {
-    }
-  }
-
-  return 0;
-}
-
-char *const thread_char_buffer =
-    (char *)_INTERNAL_DBGU_THREAD_INPUT_BUFFER_START;
-
-static int started_threads_counter = 0;
-
-void dbgu_create_thread_on_interrupt() {
-  char c = read_char();
-
-  int create_result = thread_create(
-      print_char_repeatedly, thread_char_buffer + started_threads_counter);
-  if (create_result == 0) {
-    thread_char_buffer[started_threads_counter % MAX_NUM_THREADS] = c;
-    started_threads_counter++;
-  }
-}
