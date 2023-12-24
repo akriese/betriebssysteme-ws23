@@ -1,5 +1,6 @@
 #include <mem.h>
 #include <mem_layout.h>
+#include <print.h>
 #include <scheduler.h>
 #include <thread.h>
 
