@@ -1,4 +1,5 @@
 #include <mem_addresses.h>
+#include <print.h>
 
 struct system_timer {
   unsigned int cr;

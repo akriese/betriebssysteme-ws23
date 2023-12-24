@@ -17,6 +17,8 @@ enum interrupt_handler_routines {
   _INTERRUPT_HANDLER_ROUTINES_END // used to find out the number of routines
 };
 
+void mc_remap();
+
 void st_activate_pits(unsigned short ms);
 
 int st_interrupt_active();

@@ -22,10 +22,6 @@ void _printInBase(const unsigned int d, const char bitsPerChar,
  *
  */
 __attribute__((format(printf, 1, 2))) void print(const char *fmt, ...) {
-  if (fmt <= 0x00000200) {
-    asm("swi #0");
-  }
-
   va_list arguments;
 
   va_start(arguments, fmt);
@@ -133,9 +129,9 @@ void _printInBase(const unsigned int d, const char bitsPerChar,
 
   output[positions] = '\0';
 
-  int firstIdx = positions - 1;
+  unsigned int firstIdx = positions - 1;
 
-  int i;
+  unsigned int i;
   for (i = 0; i < positions; ++i) {
     char res = alphabet[d >> (i * bitsPerChar) & mask];
     int idx = positions - i - 1;
