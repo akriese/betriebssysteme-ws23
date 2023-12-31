@@ -1,6 +1,8 @@
 #include <dbgu.h>
 #include <mem_addresses.h>
 #include <print.h>
+#include <scheduler.h>
+#include <system.h>
 
 #define SYS_INTERRUPT 1
 
@@ -27,24 +29,28 @@ struct aic {
 
 volatile struct aic *const aic = (struct aic *)AIC;
 
-void timer_interrupt_handler() { print("!\n\r"); }
+// array of function pointers holding interrupt routines
+void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(void *context);
 
-void system_interrupt_handler() {
-  // print("system interrupt received!\n\r");
+void register_interrupt_routines(enum interrupt_handler_routines routine,
+                                 void (*handler)(void *)) {
+  handlers[routine] = handler;
+}
 
+void system_interrupt_handler(void *context) {
   // read status registers of the system peripherals
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {
-    timer_interrupt_handler();
+    handlers[SYSTEM_TIMER_HANDLER](context);
   } else if (dbgu_interrupt_active()) {
-    dbgu_receive_interrupt_handler();
+    handlers[DBGU_RECEIVE_HANDLER](context);
   }
 
   // finally, signal that the interrupt handling is over
   aic->eoicr = 1;
 }
 
-void install_interrupt_handlers() {
+void init_sys_interrupts() {
   aic->iecr = 1 << SYS_INTERRUPT;
   aic->smr[SYS_INTERRUPT] = 7; // set highest priority
   aic->svr[SYS_INTERRUPT] = *handle_sys_interrupt;

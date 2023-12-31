@@ -1,3 +1,6 @@
+.extern get_banked_registers
+.extern set_banked_registers
+
 .global _ivt_start
 _ivt_start:
         ldr pc, jt_unhandled
@@ -20,6 +23,25 @@ jt_unhandled:   .word unhandled_trampoline
 .global _ivt_end
 _ivt_end:
 
+.global restore_context
+restore_context:
+        /* Stack looks like: (left is at higher address)
+        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+
+        mov r0, #0x1f
+        bl set_banked_registers
+
+        @ load pc and cpsr
+        ldmfd sp!, {r0, r1}
+
+        msr spsr_c, r1
+        mov lr, r0
+
+        /* restore saved registers */
+        ldmfd sp!, {r0-r12}
+
+        movs pc, lr
+
 unhandled_trampoline:
         b _Lend
 
@@ -40,14 +62,33 @@ undef_trampoline:
         b _Lend
 
 swi_trampoline:
-        /* save registers to stack */
-        stmdb sp, {r0-r15}
-        sub sp, sp, #(16*4)
+        /* save important registers; IRQ mode lr is the usr mode's pc */
+        stmfd sp!, {r0-r12}
 
-        mov r0, sp
+        /* disable interrupts */
+        @bl cpsr_disable_interrupts
+
+        @ save saved psr
+        mrs r1, spsr
+        /* load saved pc to r0 */
+        mov r0, lr
+
+        /* push pc (lr), cpsr */
+        stmfd sp!, {r0, r1}
+
+        mov r0, #0x1f
+        bl get_banked_registers
+
+        @ retrieve lr; 2 ints (banked regsiters) have been written since lr was pushed
+        ldr lr, [sp, #8]
+
+        @ load the causing swi instruction to retrieve the swi number
+        ldr r0, [lr, #-4]
+        bic r0, r0, #0xFF000000 @ only use the last 3 bytes of the instruction
+        mov r1, sp @ context pointer
         bl swi_handler
 
-        b _Lend
+        b restore_context
 
 prefabort_trampoline:
         /* save registers to stack */

@@ -36,7 +36,7 @@ int exception_program() {
       break_loop = 1;
       break;
     default:
-      print("shrineOS says: %c\n\r", c + 1);
+      break;
     }
 
     if (break_loop)

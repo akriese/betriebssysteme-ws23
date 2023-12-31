@@ -129,9 +129,9 @@ void _printInBase(const unsigned int d, const char bitsPerChar,
 
   output[positions] = '\0';
 
-  int firstIdx = positions - 1;
+  unsigned int firstIdx = positions - 1;
 
-  int i;
+  unsigned int i;
   for (i = 0; i < positions; ++i) {
     char res = alphabet[d >> (i * bitsPerChar) & mask];
     int idx = positions - i - 1;

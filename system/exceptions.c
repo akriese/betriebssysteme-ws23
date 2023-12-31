@@ -1,4 +1,5 @@
 #include <print.h>
+#include <sys_call.h>
 
 void undef_handler(unsigned int registers[16]) {
   print("An undefined instruction was executed at %p\n\r",
@@ -7,8 +8,9 @@ void undef_handler(unsigned int registers[16]) {
   return;
 }
 
-void swi_handler(unsigned int registers[16]) {
-  print("SWI at %p\n\r", (void *)(registers[14] - 4));
+void swi_handler(unsigned int number, void *context) {
+  // print("SWI (no. %d) at %p\n\r", number, (void *)(context[2] - 4));
+  sys_call_handler(number, context);
 
   return;
 }

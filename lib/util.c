@@ -1,4 +1,6 @@
+#include <dbgu.h>
 #include <print.h>
+#include <util.h>
 
 void register_dump(unsigned int registers[16]) {
   print("REGISTER DUMP START\n\r");
@@ -84,4 +86,59 @@ int _print_exception(int type) {
 
   print("Exception triggered: %s\n\r", text);
   return 0;
+}
+
+/**
+ * @brief Writes characters into the given buffer until a carriage return.
+ *
+ * If the input exceeds the max_length parameter, the function returns -1.
+ * The user then has to call the function another time after working with the
+ * buffer contents.
+ *
+ * @param buffer A char buffer which the functions writes to.
+ * @param max_length The length of the buffer.
+ * @return Success number. 0 on success, 1 on empty input (0th char is \n),
+ * -1 on buffer overflow
+ */
+int get_line(char *buffer, unsigned int max_length) {
+  unsigned int counter = 0;
+  do {
+    if (counter == max_length - 1) {
+      return -1;
+    }
+
+    char c = dbgu_grab_char();
+    if (c == 13 || c == 10) {
+      buffer[counter] = '\0';
+      print("\n\r");
+      break;
+    } else if (c == 0x7f) { // backspace
+      if (counter == 0) {
+        continue;
+      }
+      // overwrite last char with space and move cursor back
+      print("%c %c", 8, 8);
+      counter--;
+    } else {
+      buffer[counter++] = c;
+      print("%c", c);
+    }
+  } while (1);
+
+  if (counter == 0) {
+    return 1;
+  }
+
+  return 0;
+}
+
+int str_to_int(char *s) {
+  int res = 0;
+  while (*s) {
+    res *= 10;
+    res += (*s - '0');
+    s++;
+  }
+
+  return res;
 }
