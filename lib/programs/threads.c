@@ -4,6 +4,7 @@
 #include <print.h>
 #include <scheduler.h>
 #include <thread.h>
+#include <util.h>
 
 // this kind of closure will only work in gcc
 int print_char_repeatedly(void *input) {
@@ -52,38 +53,29 @@ void schedule_on_timer_irq(void *context) {
   scheduler_next(context);
 }
 
-int str_to_int(char *s) {
-  int res = 0;
-  while (*s) {
-    res *= 10;
-    res += (*s - '0');
-    s++;
+int thread_program() {
+  const unsigned int default_intervall = 1000;
+  print("Enter the intervall of thread switches [in ms] and press ENTER "
+        "[default: %d]: > ",
+        default_intervall);
+
+  const unsigned int number_digits = 12;
+  char number_input_buffer[number_digits + 1];
+  int success = get_line(number_input_buffer, number_digits);
+
+  unsigned int intervall;
+  if (success == -1) {
+    number_input_buffer[number_digits] = '\0';
+    intervall = str_to_int(number_input_buffer);
+
+    print("WARNING: Number too long. Taking the first %d digits (%d)",
+          number_digits, intervall);
+  } else if (success == 1) {
+    intervall = default_intervall;
+  } else {
+    intervall = str_to_int(number_input_buffer);
   }
 
-  return res;
-}
-
-int thread_program() {
-  print("Enter the intervall of thread switches [in ms] and press ENTER "
-        "[default: 1000]: > ");
-  char number_string[6];
-  unsigned int digit_counter = 0;
-  do {
-    char c = dbgu_grab_char();
-    if (c == 13 || c == 10) {
-      number_string[digit_counter] = '\0';
-      break;
-    } else if (c == 0x7f) { // backspace
-      // overwrite last char with space and move cursor back
-      print("%c %c", 8, 8);
-      digit_counter--;
-    } else {
-      number_string[digit_counter++] = c;
-      print("%c", c);
-    }
-  } while (1);
-
-  int intervall = digit_counter == 0 ? 1000 : str_to_int(number_string);
   print("\n\rYou chose a switch intervall of %d ms\n\r", intervall);
 
   // initialize the dbgu and enable its interrupts

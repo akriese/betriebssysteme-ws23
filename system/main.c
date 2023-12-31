@@ -3,6 +3,7 @@
 #include <example_programs.h>
 #include <print.h>
 #include <system.h>
+#include <util.h>
 
 #define N_PROGRAMS 4
 
@@ -23,24 +24,27 @@ int main() {
 
   dbgu_enable();
 
-  char c = dbgu_grab_char();
-  print("You chose: %c\n\r", c);
+  print("[default: %d] > ", N_PROGRAMS);
+  char input_buffer[5];
+  int success = get_line(input_buffer, 4);
 
-  switch (c) {
-  case ('1'):
-    print("test");
+  int choice = str_to_int(input_buffer);
+
+  switch (choice) {
+  case (1):
     return dbgu_program();
     break;
-  case ('2'):
+  case (2):
     return exception_program();
     break;
-  case ('3'):
+  case (3):
     return interrupt_program();
     break;
-  case ('4'):
+  case (4):
     // falling through to default
 
   default:
+    print("Defaulting to %d\n\r", N_PROGRAMS);
     return thread_program();
   }
 
