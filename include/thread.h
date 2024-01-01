@@ -5,9 +5,10 @@
 
 enum thread_status {
   TCB_UNUSED = 0,
-  THREAD_ASLEEP = -1,
+  THREAD_READY = -1,
   THREAD_ACTIVE = 1,
-  IDLE = 2,
+  THREAD_ASLEEP = 2,
+  IDLE = 3,
 };
 
 struct thread_management {

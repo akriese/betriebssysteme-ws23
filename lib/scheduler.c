@@ -9,6 +9,14 @@ struct thread_management *const thread_management =
 
 void scheduler_end_thread();
 
+void write_context(void *context, unsigned int thread_id) {
+  // load context of the next thread
+  void *new_ctx = thread_get_context(thread_id);
+  memcpy(new_ctx, context, sizeof(struct thread_control_block));
+
+  thread_management->active_thread_id = thread_id;
+}
+
 /**
  * @brief Replaces one thread context with the next thread's context
  *
@@ -19,46 +27,44 @@ void scheduler_next(void *context) {
   const unsigned int idle_id = MAX_NUM_THREADS - 1;
 
   if (thread_id == -1) {
-    thread_id = idle_id;
-  } else {
-    // save old thread's context to its tcb
-    // but only if they are given and the thread is active (not finished)
-    if (context != 0 && thread_management->status[thread_id] != TCB_UNUSED) {
-      thread_save_context(thread_id, context);
-    }
+    write_context(context, idle_id);
+    return;
+  }
+  // save old thread's context to its tcb
+  // but only if they are given and the thread is active (not finished)
+  if (context != 0 && thread_management->status[thread_id] != TCB_UNUSED) {
+    thread_save_context(thread_id, context);
+  }
 
-    // idle thread stays marked as idle
-    if (thread_id != idle_id &&
-        thread_management->status[thread_id] == THREAD_ACTIVE) {
-      thread_management->status[thread_id] = THREAD_ASLEEP;
-    }
+  // idle thread stays marked as idle and only active threads are marked as
+  // ready. avoids marking threads as ready which were just put to sleep or
+  // are waiting
+  if (thread_id != idle_id &&
+      thread_management->status[thread_id] == THREAD_ACTIVE) {
+    thread_management->status[thread_id] = THREAD_READY;
+  }
 
+  thread_id = (thread_id + 1) % MAX_NUM_THREADS;
+
+  // select next available thread to run
+  while (thread_management->status[thread_id] != THREAD_READY &&
+         thread_id != thread_management->active_thread_id) {
     thread_id = (thread_id + 1) % MAX_NUM_THREADS;
+  }
 
-    // select next available thread to run
-    while (thread_management->status[thread_id] != THREAD_ASLEEP &&
-           thread_id != thread_management->active_thread_id) {
-      thread_id = (thread_id + 1) % MAX_NUM_THREADS;
-    }
+  // no other thread available and last active thread not ready
+  // execute idle thread instead
+  if (thread_id == thread_management->active_thread_id &&
+      thread_management->status[thread_id] != THREAD_READY) {
+    thread_id = idle_id;
+  }
 
-    // no other thread available and last active thread not asleep
-    // execute idle thread instead
-    if (thread_id == thread_management->active_thread_id &&
-        thread_management->status[thread_id] != THREAD_ASLEEP) {
-      thread_id = idle_id;
-    }
-
-    if (thread_id != idle_id) {
-      thread_management->status[thread_id] = THREAD_ACTIVE;
-    }
+  if (thread_id != idle_id) {
+    thread_management->status[thread_id] = THREAD_ACTIVE;
   }
 
   if (thread_id != thread_management->active_thread_id) {
-    // load context of the next thread
-    void *new_ctx = thread_get_context(thread_id);
-    memcpy(new_ctx, context, sizeof(struct thread_control_block));
-
-    thread_management->active_thread_id = thread_id;
+    write_context(context, thread_id);
     print("\n\r");
   }
 }
@@ -75,5 +81,5 @@ void scheduler_init(int (*idle_fun)()) {
 }
 
 void scheduler_register_thread(unsigned int thread_id) {
-  thread_management->status[thread_id] = THREAD_ASLEEP;
+  thread_management->status[thread_id] = THREAD_READY;
 }
