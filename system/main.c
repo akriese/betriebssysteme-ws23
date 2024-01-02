@@ -9,7 +9,7 @@
 
 int main() {
   print("Welcome to shrineOS!\n\n\r");
-  print("Pick an example procedure to run: [default: %d]\n\r", N_PROGRAMS);
+  print("Here are some example programs to run:\n\r");
 
   const char *descriptions[N_PROGRAMS] = {
       "Test in and output of the DBGU! (u01)",
@@ -24,11 +24,7 @@ int main() {
 
   dbgu_enable();
 
-  print("[default: %d] > ", N_PROGRAMS);
-  char input_buffer[5];
-  int success = get_line(input_buffer, 4);
-
-  int choice = str_to_int(input_buffer);
+  int choice = get_number("Pick an example procedure to run", N_PROGRAMS);
 
   switch (choice) {
   case (1):
@@ -44,7 +40,8 @@ int main() {
     // falling through to default
 
   default:
-    print("Defaulting to %d\n\r", N_PROGRAMS);
+    if (choice != N_PROGRAMS)
+      print("Defaulting to %d\n\r", N_PROGRAMS);
     return thread_program();
   }
 

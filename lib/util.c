@@ -142,3 +142,33 @@ int str_to_int(char *s) {
 
   return res;
 }
+
+/**
+ * @brief Parses input from the dbgu as a number.
+ *
+ * @param prompt String that is used to prompt the user for a number.
+ * @param default_number Default to use if input is empty or otherwise invalid.
+ * @return The input number or default if not correctly parseable.
+ */
+int get_number(char *prompt, int default_number) {
+  print("%s [%d] > ", prompt, default_number);
+
+  const unsigned int number_digits = 12;
+  char number_input_buffer[number_digits + 1];
+  int success = get_line(number_input_buffer, number_digits);
+
+  int number;
+  if (success == -1) {
+    number_input_buffer[number_digits] = '\0';
+    number = str_to_int(number_input_buffer);
+
+    print("WARNING: Number too long. Taking the first %d digits (%d)",
+          number_digits, number);
+  } else if (success == 1) {
+    number = default_number;
+  } else {
+    number = str_to_int(number_input_buffer);
+  }
+
+  return number;
+}

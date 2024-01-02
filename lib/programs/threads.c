@@ -54,28 +54,8 @@ void schedule_on_timer_irq(void *context) {
 }
 
 int thread_program() {
-  const unsigned int default_intervall = 1000;
-  print("Enter the intervall of thread switches [in ms] and press ENTER "
-        "[default: %d]: > ",
-        default_intervall);
-
-  const unsigned int number_digits = 12;
-  char number_input_buffer[number_digits + 1];
-  int success = get_line(number_input_buffer, number_digits);
-
-  unsigned int intervall;
-  if (success == -1) {
-    number_input_buffer[number_digits] = '\0';
-    intervall = str_to_int(number_input_buffer);
-
-    print("WARNING: Number too long. Taking the first %d digits (%d)",
-          number_digits, intervall);
-  } else if (success == 1) {
-    intervall = default_intervall;
-  } else {
-    intervall = str_to_int(number_input_buffer);
-  }
-
+  int intervall = get_number(
+      "Enter the intervall of thread switches [in ms] and press ENTER", 1000);
   print("\n\rYou chose a switch intervall of %d ms\n\r", intervall);
 
   // initialize the dbgu and enable its interrupts
