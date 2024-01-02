@@ -70,3 +70,15 @@ void create_idle_thread(int (*idle_fun)()) {
 
   management->status[id] = IDLE;
 }
+
+void thread_sleep(unsigned int duration) {
+  // set the thread's status to asleep
+
+  // register thread's sleep end time
+}
+
+void thread_wait(unsigned int duration) {
+  // set the thread's status to waiting
+
+  // register thread's wake up action (interrupt)
+}
