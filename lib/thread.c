@@ -103,7 +103,8 @@ int thread_unblock(enum resource_type blocking_resource) {
 
   int i;
   for (i = 0; i < MAX_NUM_THREADS; ++i) {
-    if (management->status[i] == THREAD_BLOCKED) {
+    if (management->status[i] == THREAD_BLOCKED &&
+        management->block_reason[i] == blocking_resource) {
       management->status[i] = THREAD_READY;
       management->block_reason[i] = RESOURCE_NONE;
       break;
