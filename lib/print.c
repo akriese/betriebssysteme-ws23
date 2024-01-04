@@ -85,10 +85,20 @@ void _printDecimal(const int d) {
   digits[15] = '\0';
   int idx = 14;
 
+  int is_negative = d < 0;
+
+  if (is_negative) {
+    x = -x;
+  }
+
   do {
     digits[idx--] = lookup[x % 10];
     x /= 10;
-  } while (x > 0);
+  } while (x != 0);
+
+  if (is_negative) {
+    digits[idx--] = '-';
+  }
 
   _printString(digits + idx + 1);
 }
