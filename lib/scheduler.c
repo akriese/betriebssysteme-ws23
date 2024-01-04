@@ -70,6 +70,8 @@ void scheduler_next(void *context) {
     thread_management->active_thread_id = new_thread_id;
     // print("\n\r");
   }
+  print("%d -> %d (%d)\n\r", old_thread_id, new_thread_id,
+        thread_management->status[new_thread_id]);
 }
 
 void scheduler_start() { scheduler_next(0); }
