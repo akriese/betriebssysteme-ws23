@@ -103,7 +103,7 @@ void sys_call_sleep(unsigned int duration) {
 
 char sys_call_read_char() {
   char c;
-  __SWI_OUT(SYSCALL_NUM_THREAD_CREATE, "=r"(c));
+  __SWI_OUT(SYSCALL_NUM_IO_READ_CHAR, "=r"(c));
   return c;
 }
 
