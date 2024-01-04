@@ -34,6 +34,13 @@ volatile struct ring_buffer *ring_buffer_create(unsigned int size,
   return b;
 }
 
+/**
+ * @brief Checks if the given ring_buffer has a next element.
+ */
+int ring_buffer_available(volatile struct ring_buffer *b) {
+  return b->next_out != b->next_in;
+}
+
 void ring_buffer_put(volatile struct ring_buffer *b, unsigned int element) {
   b->buffer[b->next_in] = element;
   b->next_in = (b->next_in + 1) % b->length;
@@ -44,7 +51,7 @@ void ring_buffer_put(volatile struct ring_buffer *b, unsigned int element) {
  * Otherwise returns the pointer to the object to get.
  */
 unsigned int *ring_buffer_get(volatile struct ring_buffer *b) {
-  if (b->next_out == b->next_in) {
+  if (!ring_buffer_available(b)) {
     return 0;
   }
 

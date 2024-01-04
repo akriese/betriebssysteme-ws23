@@ -76,8 +76,6 @@ void write_char(char c) { dbgu->thr = c; }
  * as that is done by the controller upon the register read instruction.
  */
 char dbgu_getc() {
-  // enable receive controller
-
   // wait for new character in ring buffer
   unsigned int *c;
   do {
@@ -85,8 +83,6 @@ char dbgu_getc() {
   } while (c == 0);
 
   return *(char *)c;
-  // disable read
-  // set_status(RXDIS_BIT);
 }
 
 /*
@@ -142,6 +138,8 @@ void dbgu_receive_interrupt_handler() {
   char c = read_char();
   ring_buffer_put(receive_buffer, (unsigned int)c);
 }
+
+int dbgu_has_next() { return ring_buffer_available(receive_buffer); }
 
 char dbgu_grab_char() {
   while (!check_status(RXRDY_BIT)) {

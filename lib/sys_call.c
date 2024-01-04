@@ -44,10 +44,11 @@ void sys_call_handler(unsigned int number, void *context) {
     scheduler_next(context);
     break;
   case SYSCALL_NUM_IO_READ_CHAR:
-    // TODO: register the thread to wait for the next char
-    registers[0] = dbgu_grab_char();
-    // TODO: put the thread on wait
-    // thread_wait();
+    // check if dbgu already has a next char to avoid unnecessary waiting
+    if (dbgu_has_next()) {
+      registers[0] = dbgu_getc();
+    } else {
+    }
     break;
   case SYSCALL_NUM_IO_PUT_CHAR:
     dbgu_putc(registers[0]);
