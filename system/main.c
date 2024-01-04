@@ -38,7 +38,8 @@ int main() {
     return interrupt_program();
     break;
   case (4):
-    thread_program();
+    return thread_program();
+    break;
   case (5):
     // falling through to default
 
