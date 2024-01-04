@@ -119,7 +119,7 @@ void scheduler_switch(unsigned int thread_id, void *context) {
   }
 
   // set ready status for current thread except if it was the idle thread
-  if (thread_id != MAX_NUM_THREADS - 1) {
+  if (current_thread_id != MAX_NUM_THREADS - 1) {
     thread_management->status[current_thread_id] = THREAD_READY;
   }
 
