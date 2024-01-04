@@ -22,53 +22,53 @@ void write_context(void *context, unsigned int thread_id) {
  * @param context Pointer where to read and write the context from/to
  */
 void scheduler_next(void *context) {
-  int thread_id = thread_management->active_thread_id;
+  int old_thread_id = thread_management->active_thread_id;
   const unsigned int idle_id = MAX_NUM_THREADS - 1;
 
-  if (thread_id == -1) {
+  if (old_thread_id == -1) {
     write_context(context, idle_id);
     thread_management->active_thread_id = idle_id;
     return;
   }
+
   // save old thread's context to its tcb
   // but only if they are given and the thread is active (not finished)
-  if (context != 0 && thread_management->status[thread_id] != TCB_UNUSED) {
-    thread_save_context(thread_id, context);
+  if (context != 0 && thread_management->status[old_thread_id] != TCB_UNUSED) {
+    thread_save_context(old_thread_id, context);
   }
 
   // idle thread stays marked as idle and only active threads are marked as
   // ready. avoids marking threads as ready which were just put to sleep or
   // are waiting
-  if (thread_id != idle_id &&
-      thread_management->status[thread_id] == THREAD_ACTIVE) {
-    thread_management->status[thread_id] = THREAD_READY;
+  if (old_thread_id != idle_id &&
+      thread_management->status[old_thread_id] == THREAD_ACTIVE) {
+    thread_management->status[old_thread_id] = THREAD_READY;
   }
 
-  thread_id = (thread_id + 1) % MAX_NUM_THREADS;
+  int new_thread_id = (old_thread_id + 1) % MAX_NUM_THREADS;
 
   // select next available thread to run
-  while (thread_management->status[thread_id] != THREAD_READY &&
-         thread_id != thread_management->active_thread_id) {
-    thread_id = (thread_id + 1) % MAX_NUM_THREADS;
+  while (thread_management->status[new_thread_id] != THREAD_READY &&
+         new_thread_id != old_thread_id) {
+    new_thread_id = (new_thread_id + 1) % MAX_NUM_THREADS;
   }
 
   // no other thread available and last active thread not ready
   // execute idle thread instead
-  if (thread_id == thread_management->active_thread_id &&
-      thread_management->status[thread_id] != THREAD_READY) {
-    thread_id = idle_id;
+  if (new_thread_id == old_thread_id &&
+      thread_management->status[new_thread_id] != THREAD_READY) {
+    new_thread_id = idle_id;
   }
 
-  if (thread_id != idle_id) {
-    thread_management->status[thread_id] = THREAD_ACTIVE;
+  if (new_thread_id != idle_id) {
+    thread_management->status[new_thread_id] = THREAD_ACTIVE;
   }
 
-  if (thread_id != thread_management->active_thread_id) {
-    write_context(context, thread_id);
-    print("\n\r");
+  if (new_thread_id != old_thread_id) {
     write_context(context, new_thread_id);
 
     thread_management->active_thread_id = new_thread_id;
+    // print("\n\r");
   }
 }
 
