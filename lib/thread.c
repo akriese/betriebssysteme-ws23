@@ -1,3 +1,4 @@
+#include "resource.h"
 #include <mem.h>
 #include <mem_layout.h>
 #include <print.h>
@@ -72,13 +73,22 @@ void create_idle_thread(int (*idle_fun)()) {
 }
 
 void thread_sleep(unsigned int duration) {
+  int thread_id = management->active_thread_id;
+
   // set the thread's status to asleep
+  thread_wait(RESOURCE_WAITING_TIME);
 
   // register thread's sleep end time
+  management->wake_up_time[thread_id] = management->time_counter + duration;
 }
 
 void thread_wait(unsigned int duration) {
   // set the thread's status to waiting
 
   // register thread's wake up action (interrupt)
+void thread_wakeup(unsigned int thread_id) {
+  management->status[thread_id] = THREAD_READY;
+  management->wake_up_time[thread_id] = 0;
+}
+
 }

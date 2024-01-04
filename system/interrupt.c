@@ -3,6 +3,7 @@
 #include <print.h>
 #include <scheduler.h>
 #include <system.h>
+#include <thread.h>
 
 #define SYS_INTERRUPT 1
 
@@ -42,8 +43,11 @@ void system_interrupt_handler(void *context) {
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {
     handlers[SYSTEM_TIMER_HANDLER](context);
+    scheduler_count_time();
+    scheduler_next(context);
   } else if (dbgu_interrupt_active()) {
     handlers[DBGU_RECEIVE_HANDLER](context);
+    dbgu_receive_interrupt_handler();
   }
 
   // finally, signal that the interrupt handling is over

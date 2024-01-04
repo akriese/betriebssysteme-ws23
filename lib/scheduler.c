@@ -74,6 +74,7 @@ void scheduler_start() { scheduler_next(0); }
 void scheduler_init(int (*idle_fun)()) {
   thread_management->active_thread_id = -1;
   thread_management->last_created_id = -1;
+  thread_management->time_counter = 0;
   memset(&thread_management->status, 0,
          sizeof(enum thread_status) * MAX_NUM_THREADS);
 
@@ -82,4 +83,23 @@ void scheduler_init(int (*idle_fun)()) {
 
 void scheduler_register_thread(unsigned int thread_id) {
   thread_management->status[thread_id] = THREAD_READY;
+}
+
+void scheduler_count_time() {
+  struct thread_management *tm = thread_management;
+  unsigned int last_time = tm->time_counter;
+  tm->time_counter += st_get_intervall();
+
+  if (last_time > tm->time_counter) {
+    // TODO: handle time overflow...
+  }
+
+  int i;
+  for (i = 0; i < MAX_NUM_THREADS; ++i) {
+    if (tm->status[i] == THREAD_BLOCKED &&
+        tm->block_reason[i] == RESOURCE_WAITING_TIME &&
+        tm->wake_up_time[i] < tm->time_counter) {
+      thread_wakeup(i);
+    }
+  }
 }

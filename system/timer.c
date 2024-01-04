@@ -26,6 +26,10 @@ volatile struct system_timer *const system_timer =
  */
 unsigned int ms_to_intervall(unsigned short ms) { return 32767 * ms / 1000; }
 
+unsigned int intervall_to_ms(unsigned int intervall) {
+  return intervall * 1000 / 32767;
+}
+
 /*
  * Time can be a maximum clock cycles of 65535.
  *
@@ -43,3 +47,5 @@ void st_activate_pits(unsigned short ms) {
 }
 
 int st_interrupt_active() { return system_timer->sr & 1 << 0; }
+
+int st_get_intervall() { return intervall_to_ms(system_timer->pimr); }

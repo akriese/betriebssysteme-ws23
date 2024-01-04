@@ -23,6 +23,8 @@ void st_activate_pits(unsigned short ms);
 
 int st_interrupt_active();
 
+int st_get_intervall();
+
 void init_sys_interrupts();
 
 void register_interrupt_routines(enum interrupt_handler_routines routine,
