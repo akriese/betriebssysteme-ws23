@@ -2,6 +2,7 @@
 #include <print.h>
 #include <scheduler.h>
 #include <sys_call.h>
+#include <system.h>
 #include <thread.h>
 
 // some macro magic with variable arguments
@@ -24,11 +25,8 @@
 #define NUMBERED_SWI(...)                                                      \
   __GET_SWI_MACRO(__VA_ARGS__, __SWI_IN_OUT, __SWI_IN, __SWI)(__VA_ARGS__)
 
-void thread_sleep(unsigned int duration);
-
 void sys_call_handler(unsigned int number, void *context) {
-  unsigned int *registers =
-      context; // TODO: get the exact register offset in context
+  unsigned int *registers = thread_registers_from_context(context);
 
   switch (number) {
   case SYSCALL_NUM_THREAD_EXIT:
@@ -48,6 +46,11 @@ void sys_call_handler(unsigned int number, void *context) {
     if (dbgu_has_next()) {
       registers[0] = dbgu_getc();
     } else {
+      // register the thread to wait for the next char
+      thread_wait(RESOURCE_DBGU_RECEIVE);
+
+      // switch current thread for the next ready one
+      scheduler_next(context);
     }
     break;
   case SYSCALL_NUM_IO_PUT_CHAR:
@@ -55,6 +58,24 @@ void sys_call_handler(unsigned int number, void *context) {
     break;
   default:
     print("There is currently no handler defined for SWI #%d\n\r", number);
+  }
+}
+
+void sys_call_post_unblock(enum resource_type blocking_resource,
+                           unsigned int unblocked_thread_id) {
+  void *context = thread_get_context(unblocked_thread_id);
+  unsigned int *registers = thread_registers_from_context(context);
+
+  switch (blocking_resource) {
+  case RESOURCE_NONE:
+    break;
+  case RESOURCE_DBGU_RECEIVE:
+    registers[0] = dbgu_getc();
+    break;
+  case RESOURCE_DBGU_TRANSMIT:
+    break;
+  case RESOURCE_WAITING_TIME:
+    break;
   }
 }
 
