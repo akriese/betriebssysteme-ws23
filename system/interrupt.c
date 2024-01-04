@@ -48,6 +48,10 @@ void system_interrupt_handler(void *context) {
   } else if (dbgu_interrupt_active()) {
     handlers[DBGU_RECEIVE_HANDLER](context);
     dbgu_receive_interrupt_handler();
+
+    unsigned int unblocked_thread_id = thread_unblock(RESOURCE_DBGU_RECEIVE);
+    sys_call_post_unblock(RESOURCE_DBGU_RECEIVE, unblocked_thread_id);
+    scheduler_switch(unblocked_thread_id, context);
   }
 
   // finally, signal that the interrupt handling is over

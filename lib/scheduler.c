@@ -2,6 +2,7 @@
 #include <mem_layout.h>
 #include <print.h>
 #include <scheduler.h>
+#include <system.h>
 #include <thread.h>
 
 struct thread_management *const thread_management =
@@ -13,8 +14,6 @@ void write_context(void *context, unsigned int thread_id) {
   // load context of the next thread
   void *new_ctx = thread_get_context(thread_id);
   memcpy(new_ctx, context, sizeof(struct thread_control_block));
-
-  thread_management->active_thread_id = thread_id;
 }
 
 /**
@@ -28,6 +27,7 @@ void scheduler_next(void *context) {
 
   if (thread_id == -1) {
     write_context(context, idle_id);
+    thread_management->active_thread_id = idle_id;
     return;
   }
   // save old thread's context to its tcb
@@ -66,6 +66,9 @@ void scheduler_next(void *context) {
   if (thread_id != thread_management->active_thread_id) {
     write_context(context, thread_id);
     print("\n\r");
+    write_context(context, new_thread_id);
+
+    thread_management->active_thread_id = new_thread_id;
   }
 }
 
@@ -102,4 +105,22 @@ void scheduler_count_time() {
       thread_wakeup(i);
     }
   }
+}
+
+void scheduler_switch(unsigned int thread_id, void *context) {
+  unsigned int current_thread_id = thread_management->active_thread_id;
+
+  // save old thread's context to its tcb
+  // but only if they are given and the thread is active (not finished)
+  if (thread_management->status[current_thread_id] != TCB_UNUSED) {
+    thread_save_context(current_thread_id, context);
+  }
+
+  // set ready status for current thread except if it was the idle thread
+  if (thread_id != MAX_NUM_THREADS - 1) {
+    thread_management->status[current_thread_id] = THREAD_READY;
+  }
+
+  write_context(context, thread_id);
+  thread_management->active_thread_id = thread_id;
 }

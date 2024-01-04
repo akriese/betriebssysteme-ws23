@@ -82,13 +82,42 @@ void thread_sleep(unsigned int duration) {
   management->wake_up_time[thread_id] = management->time_counter + duration;
 }
 
-void thread_wait(unsigned int duration) {
-  // set the thread's status to waiting
+void thread_wait(enum resource_type blocking_resource) {
+  int thread_id = management->active_thread_id;
+
+  // set the thread's status to blocked
+  management->status[thread_id] = THREAD_BLOCKED;
 
   // register thread's wake up action (interrupt)
+  management->block_reason[thread_id] = blocking_resource;
+}
+
+/**
+ * @brief Unblocks a thread that is blocked by the given resource.
+ *
+ * @param blocking_resource The resource type that is now accessible.
+ * @return The id of the unblocked thread.
+ */
+int thread_unblock(enum resource_type blocking_resource) {
+  int thread_id = management->active_thread_id;
+
+  int i;
+  for (i = 0; i < MAX_NUM_THREADS; ++i) {
+    if (management->status[i] == THREAD_BLOCKED) {
+      management->status[i] = THREAD_READY;
+      management->block_reason[i] = RESOURCE_NONE;
+      break;
+    }
+  }
+
+  return i;
+}
+
 void thread_wakeup(unsigned int thread_id) {
   management->status[thread_id] = THREAD_READY;
   management->wake_up_time[thread_id] = 0;
 }
 
+unsigned int *thread_registers_from_context(void *context) {
+  return ((struct thread_control_block *)context)->registers;
 }
