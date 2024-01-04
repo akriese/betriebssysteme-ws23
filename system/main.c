@@ -5,7 +5,7 @@
 #include <system.h>
 #include <util.h>
 
-#define N_PROGRAMS 4
+#define N_PROGRAMS 5
 
 int main() {
   print("Welcome to shrineOS!\n\n\r");
@@ -15,7 +15,8 @@ int main() {
       "Test in and output of the DBGU! (u01)",
       "Try out different exceptions! (u02)",
       "See system timer and dbgu interrupts in action! (u03)",
-      "Start threads and let them take turns! (u04)"};
+      "Start threads and let them take turns! (u04)",
+      "Start threads that use sys calls for kernel ops! (u05)"};
 
   int i;
   for (i = 0; i < N_PROGRAMS; ++i) {
@@ -37,12 +38,14 @@ int main() {
     return interrupt_program();
     break;
   case (4):
+    thread_program();
+  case (5):
     // falling through to default
 
   default:
     if (choice != N_PROGRAMS)
       print("Defaulting to %d\n\r", N_PROGRAMS);
-    return thread_program();
+    return sys_call_application();
   }
 
   return 1;
