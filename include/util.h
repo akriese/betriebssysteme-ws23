@@ -11,3 +11,9 @@ int get_line(char *buffer, unsigned int max_length);
 int str_to_int(char *s);
 
 int get_number(char *prompt, int default_number);
+
+int is_upper(char c);
+
+int is_lower(char c);
+
+int idling();

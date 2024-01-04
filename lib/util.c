@@ -172,3 +172,23 @@ int get_number(char *prompt, int default_number) {
 
   return number;
 }
+
+int is_upper(char c) { return c >= 65 && c <= 90; }
+
+int is_lower(char c) { return is_upper(c - ('a' - 'A')); }
+
+/**
+ * @brief A function that prints something infinitely with some time inbetween.
+ */
+int idling() {
+  int c = 0;
+  while (1) {
+    // print("idle... (%d)   \r", c++);
+    print(".");
+    volatile int i;
+    for (i = 0; i < 200000000; i++) {
+    }
+  }
+
+  return 0;
+}

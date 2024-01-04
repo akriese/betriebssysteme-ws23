@@ -38,16 +38,6 @@ void create_char_print_thread() {
   }
 }
 
-int idling() {
-  int c = 0;
-  while (1) {
-    print("idle... (%d)   \r", c++);
-    volatile int i;
-    for (i = 0; i < 300000000; i++) {
-    }
-  }
-}
-
 void schedule_on_timer_irq(void *context) {
   print("!");
   scheduler_next(context);
