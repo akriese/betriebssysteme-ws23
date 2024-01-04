@@ -56,6 +56,9 @@ void sys_call_handler(unsigned int number, void *context) {
   case SYSCALL_NUM_IO_PUT_CHAR:
     dbgu_putc(registers[0]);
     break;
+  case SYSCALL_NUM_REGISTER_IRQ_CALLBACK:
+    register_interrupt_routines(registers[0], (void (*)(void *))registers[1]);
+    break;
   default:
     print("There is currently no handler defined for SWI #%d\n\r", number);
   }
@@ -100,3 +103,14 @@ char sys_call_read_char() {
 }
 
 void sys_call_put_char(char c) { __SWI_IN(SYSCALL_NUM_IO_PUT_CHAR, "r"(c)); }
+
+void sys_call_register_irq_callback(unsigned int callback_id,
+                                    int (*fun)(void *)) {
+  __asm__ volatile("mov r0, %1\n\t"
+                   "mov r1, %2\n\t"
+                   "swi %0\n\t"
+                   :
+                   : "I"(SYSCALL_NUM_REGISTER_IRQ_CALLBACK), "r"(callback_id),
+                     "r"(fun)
+                   : "r14");
+}
