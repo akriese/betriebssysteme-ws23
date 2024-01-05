@@ -52,7 +52,7 @@ int thread_create(int (*fun)(void *), void *input) {
 
   __create_thread(thread_id, fun, input);
 
-  scheduler_register_thread(thread_id);
+  management->status[thread_id] = THREAD_READY;
 
   return 0;
 }

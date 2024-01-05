@@ -8,8 +8,6 @@
 struct thread_management *const thread_management =
     (struct thread_management *)_INTERNAL_THREADS_MANAGEMENT_START;
 
-void scheduler_end_thread();
-
 void write_context(struct thread_context *context, unsigned int thread_id) {
   // load context of the next thread
   struct thread_context *new_ctx = thread_get_context(thread_id);
@@ -71,8 +69,6 @@ void scheduler_next(struct thread_context *context) {
   }
 }
 
-void scheduler_start() { scheduler_next(0); }
-
 void scheduler_init(int (*idle_fun)()) {
   thread_management->active_thread_id = -1;
   thread_management->last_created_id = -1;
@@ -81,10 +77,6 @@ void scheduler_init(int (*idle_fun)()) {
          sizeof(enum thread_status) * MAX_NUM_THREADS);
 
   create_idle_thread(idle_fun);
-}
-
-void scheduler_register_thread(unsigned int thread_id) {
-  thread_management->status[thread_id] = THREAD_READY;
 }
 
 void scheduler_count_time() {
