@@ -19,6 +19,13 @@ static int started_threads_counter = 0;
 static int sleep_time = 500;
 static int million_computation_cycles = 200;
 
+/**
+ * @brief Prints a char repeatedly with some computation inbetween.
+ *
+ * @param input Pointer to a print_thread_info object. This contains the
+ * character to print and the number of comupation iterations.
+ * @return 0
+ */
 int print_char_repeatedly_with_computation(void *input) {
   struct print_thread_info *info = (struct print_thread_info *)input;
   const char x = info->c;
@@ -37,6 +44,13 @@ int print_char_repeatedly_with_computation(void *input) {
   return 0;
 }
 
+/**
+ * @brief Prints a character repeatedly while sleeping inbetween.
+ *
+ * @param input Pointer to a print_thread_info object. This contains the
+ * character to print and the sleep duration for between each print.
+ * @return 0
+ */
 int print_char_repeatedly_with_sleep(void *input) {
   struct print_thread_info *info = (struct print_thread_info *)input;
   const char x = info->c;
@@ -54,6 +68,12 @@ int print_char_repeatedly_with_sleep(void *input) {
   return 0;
 }
 
+/**
+ * @brief Creates new printing threads depending on the character's case.
+ *
+ * @param c The character to be printed.
+ * @return 0 on success; 1 if no thread was created.
+ */
 int input_callback(char c) {
   // check for an unused thread info object
   int count = 0;
@@ -77,6 +97,7 @@ int input_callback(char c) {
   int create_result;
 
   // try to create the new thread
+  // depending on the case of the character, we use different print threads
   if (is_upper(c)) {
     thread_info->sleep_or_repeat = million_computation_cycles;
     create_result = sys_call_create_thread(
@@ -95,8 +116,16 @@ int input_callback(char c) {
   return 0;
 }
 
+/**
+ * @brief Runs in an endless loop and listens on input characters.
+ * These are forwarded to the actual input callback.
+ * This is supposed to be a user application as it only uses syscalls
+ * to execute kernel functions.
+ *
+ * @param __unused Unused
+ * @return 0
+ */
 int thread_starter(void *__unused) {
-  // sys_call_register_irq_callback(DBGU_RECEIVE_HANDLER, input_callback);
   print("Type characters to start threads:\n\r"
         "- Upper case for actively waiting (computation)\n\r"
         "- Lower case for passively waiting (sleep)\n\r"
@@ -117,14 +146,23 @@ int thread_starter(void *__unused) {
   return 0;
 }
 
+/**
+ * @brief The example program to execute threads with syscalls.
+ * This has to set up interrupts, system timer, dbgu and the scheduler.
+ * In the end, the thread_starter function is used to create a 'main' thread,
+ * which is again spawning other threads (print threads).
+ *
+ * @return 0
+ */
 int sys_call_application() {
+  // get some run settings concerning time intervalls form the user
+  int intervall = get_number(
+      "Enter the intervall of thread switches [in ms] and press ENTER", 100);
   sleep_time =
       get_number("Enter the sleep duration [in ms] for threads!", sleep_time);
   million_computation_cycles = get_number(
       "Enter the number of computation cycles between prints (in millions)!",
       million_computation_cycles);
-  int intervall = get_number(
-      "Enter the intervall of thread switches [in ms] and press ENTER", 100);
 
   // initialize the dbgu and enable its interrupts
   dbgu_initialize();
@@ -148,6 +186,7 @@ int sys_call_application() {
     thread_info_buffer[i].free = 1;
   }
 
+  // create the thread spawning thread, the actual application
   sys_call_create_thread(thread_starter, 0);
 
   return 0;
