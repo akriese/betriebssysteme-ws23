@@ -1,12 +1,13 @@
 #include <stdarg.h> // for va_list etc., can be imported, as not OS specific
 
 #include <dbgu.h>
+#include <sys_call.h>
 
 /*
  * Some function that actually prints a character or sends it via the serial
  * interface
  */
-void _print(char c) { dbgu_putc(c); }
+void _print(char c) { sys_call_put_char(c); }
 
 void _printDecimal(const int d);
 void _printChar(const char c);
