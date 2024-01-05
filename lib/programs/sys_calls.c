@@ -12,6 +12,12 @@ struct print_thread_info {
   char c;
 };
 
+struct print_thread_info thread_info_buffer[MAX_NUM_THREADS];
+
+static int started_threads_counter = 0;
+static int sleep_time = 500;
+static int million_computation_cycles = 200;
+
 int print_char_repeatedly_with_computation(void *input) {
   const struct print_thread_info *info = (struct print_thread_info *)input;
   const char x = info->c;
@@ -44,12 +50,6 @@ int print_char_repeatedly_with_sleep(void *input) {
 
   return 0;
 }
-
-struct print_thread_info thread_info_buffer[MAX_NUM_THREADS];
-
-static int started_threads_counter = 0;
-static int sleep_time = 500;
-static int million_computation_cycles = 100;
 
 int input_callback(char c) {
   struct print_thread_info *thread_info =
@@ -107,7 +107,7 @@ int sys_call_application() {
       "Enter the number of computation cycles between prints (in millions)!",
       million_computation_cycles);
   int intervall = get_number(
-      "Enter the intervall of thread switches [in ms] and press ENTER", 1000);
+      "Enter the intervall of thread switches [in ms] and press ENTER", 100);
 
   // initialize the dbgu and enable its interrupts
   dbgu_initialize();
