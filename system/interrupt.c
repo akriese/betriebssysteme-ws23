@@ -55,9 +55,17 @@ void system_interrupt_handler(void *context) {
       handlers[DBGU_RECEIVE_HANDLER](context);
     }
 
-    unsigned int unblocked_thread_id = thread_unblock(RESOURCE_DBGU_RECEIVE);
-    sys_call_post_unblock(RESOURCE_DBGU_RECEIVE, unblocked_thread_id);
-    scheduler_switch(unblocked_thread_id, context);
+    // unblock a thread that was waiting for input
+    int unblocked_thread_id = thread_unblock(RESOURCE_DBGU_RECEIVE);
+
+    if (unblocked_thread_id != -1) {
+      // postprocess the unblocking
+      // (in this case, write the input to the thread's context)
+      sys_call_post_unblock(RESOURCE_DBGU_RECEIVE, unblocked_thread_id);
+
+      // switch to the unblocked thread immediately
+      scheduler_switch(unblocked_thread_id, context);
+    }
   }
 
   // finally, signal that the interrupt handling is over
@@ -71,6 +79,4 @@ void init_sys_interrupts() {
 
   // reset all custom handlers to 0
   memset(handlers, 0, 4 * _INTERRUPT_HANDLER_ROUTINES_END);
-
-  print("Handlers' address: %p\n\r", handlers);
 }

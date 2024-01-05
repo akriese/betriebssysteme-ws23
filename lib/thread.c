@@ -96,7 +96,7 @@ void thread_wait(enum resource_type blocking_resource) {
  * @brief Unblocks a thread that is blocked by the given resource.
  *
  * @param blocking_resource The resource type that is now accessible.
- * @return The id of the unblocked thread.
+ * @return The id of the unblocked thread. If none was unblocked, returns -1.
  */
 int thread_unblock(enum resource_type blocking_resource) {
   int thread_id = management->active_thread_id;
@@ -107,11 +107,11 @@ int thread_unblock(enum resource_type blocking_resource) {
         management->block_reason[i] == blocking_resource) {
       management->status[i] = THREAD_READY;
       management->block_reason[i] = RESOURCE_NONE;
-      break;
+      return i;
     }
   }
 
-  return i;
+  return -1;
 }
 
 void thread_wakeup(unsigned int thread_id) {
