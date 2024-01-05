@@ -89,10 +89,19 @@ int input_callback(char c) {
 
 int thread_starter(void *__unused) {
   // sys_call_register_irq_callback(DBGU_RECEIVE_HANDLER, input_callback);
-  print("starter started!\n\r");
+  print("Type characters to start threads:\n\r"
+        "- Upper case for actively waiting (computation)\n\r"
+        "- Lower case for passively waiting (sleep)\n\r"
+        "- ENTER for a linebreak\n\r\n\r");
 
   while (1) {
     char c = sys_call_read_char();
+
+    // print newline if the user wants to have a line break
+    if (c == 13 || c == 10) {
+      print("\n\r");
+      continue;
+    }
 
     input_callback(c);
   }
