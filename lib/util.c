@@ -133,6 +133,11 @@ int get_line(char *buffer, unsigned int max_length) {
 }
 
 int str_to_int(char *s) {
+  int is_negative = *s == '-';
+
+  if (is_negative)
+    s++;
+
   int res = 0;
   while (*s) {
     res *= 10;
@@ -140,7 +145,7 @@ int str_to_int(char *s) {
     s++;
   }
 
-  return res;
+  return is_negative ? -res : res;
 }
 
 /**
@@ -173,9 +178,11 @@ int get_number(char *prompt, int default_number) {
   return number;
 }
 
-int is_upper(char c) { return c >= 65 && c <= 90; }
+int is_upper(char c) { return c >= 'A' && c <= 'Z'; }
 
 int is_lower(char c) { return is_upper(c - ('a' - 'A')); }
+
+int is_digit(char c) { return c >= '0' && c <= '9'; }
 
 /**
  * @brief A function that prints something infinitely with some time inbetween.

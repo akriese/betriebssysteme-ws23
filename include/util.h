@@ -16,4 +16,6 @@ int is_upper(char c);
 
 int is_lower(char c);
 
+int is_digit(char c);
+
 int idling();
