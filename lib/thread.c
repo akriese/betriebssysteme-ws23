@@ -21,11 +21,10 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
 
   struct thread_context *new_ctx = &new_tcb->ctx;
 
-  new_ctx->sp = _INTERNAL_THREADS_STACKS_START +
-                THREAD_STACK_SIZE * (id + 1); // TODO: find good start for stack
+  new_ctx->sp = _INTERNAL_THREADS_STACKS_START + THREAD_STACK_SIZE * (id + 1);
   new_ctx->lr = (unsigned int)sys_call_exit_thread;
   new_ctx->pc = (unsigned int)fun;
-  new_ctx->cpsr = CPU_MODE_USER; // TODO: find useful default value for cpsr
+  new_ctx->cpsr = CPU_MODE_USER;
   new_ctx->registers[0] = (unsigned int)input;
 
   management->last_created_id = id;
@@ -69,13 +68,10 @@ void thread_finish() {
  * @brief Save the context of a given thread to its TCB.
  *
  * @param thread_id ID of the thread to be saved.
- * @param context Context to write to the TCBa.
+ * @param context Context to write to the TCB.
  */
 void thread_save_context(unsigned int thread_id,
                          struct thread_context *context) {
-  // ATTENTION: This copies as many bytes as there are in a TCB
-  // If the TCB is more than just the context, this will lead to unexpected
-  // behaviour.
   memcpy(context, &tcbs[thread_id].ctx, sizeof(struct thread_context));
 }
 
@@ -83,6 +79,12 @@ struct thread_context *thread_get_context(unsigned int thread_id) {
   return &tcbs[thread_id].ctx;
 }
 
+/**
+ * @brief Creates the idle thread with the highest thread id.
+ *
+ * @param idle_fun The thread function of the idle thread to execute. Should not
+ * return (contain an inifinite loop).
+ */
 void create_idle_thread(int (*idle_fun)()) {
   unsigned int id = MAX_NUM_THREADS - 1;
   __create_thread(id, idle_fun, 0);
@@ -90,6 +92,14 @@ void create_idle_thread(int (*idle_fun)()) {
   management->status[id] = IDLE;
 }
 
+/**
+ * @brief Set the current thread into sleeping mode.
+ *
+ * This also defines the wakeup time, but does not actually rotate the thread
+ * out of execution. Which has to be done e.g. by the scheduler.
+ *
+ * @param duration *Minimum* sleep time in ms
+ */
 void thread_sleep(unsigned int duration) {
   int thread_id = management->active_thread_id;
 
@@ -100,6 +110,12 @@ void thread_sleep(unsigned int duration) {
   management->wake_up_time[thread_id] = management->time_counter + duration;
 }
 
+/**
+ * @brief Blocks the current thread with a resource that it is going to wait
+ * for.
+ *
+ * @param blocking_resource The resource that thread is blocked by.
+ */
 void thread_wait(enum resource_type blocking_resource) {
   int thread_id = management->active_thread_id;
 
@@ -121,6 +137,7 @@ int thread_unblock(enum resource_type blocking_resource) {
 
   int i;
   for (i = 0; i < MAX_NUM_THREADS; ++i) {
+    // only the first matching thread is unblocked
     if (management->status[i] == THREAD_BLOCKED &&
         management->block_reason[i] == blocking_resource) {
       management->status[i] = THREAD_READY;
@@ -132,11 +149,25 @@ int thread_unblock(enum resource_type blocking_resource) {
   return -1;
 }
 
+/**
+ * @brief Sets the status of the given thread to ready.
+ *
+ * This function does not guarantee that the woken thread is executed next.
+ *
+ * @param thread_id Id of the thread to be woken.
+ */
 void thread_wakeup(unsigned int thread_id) {
   management->status[thread_id] = THREAD_READY;
   management->wake_up_time[thread_id] = 0;
 }
 
+/**
+ * @brief Gets the registers from the given thread context pointer.
+ *
+ * @param context Pointer to a thread_context block that one wants the registers
+ * from.
+ * @return Pointer to the general-purpose registers in the given context.
+ */
 unsigned int *thread_registers_from_context(struct thread_context *context) {
   return context->registers;
 }

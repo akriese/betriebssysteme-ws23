@@ -26,6 +26,14 @@
 #define NUMBERED_SWI(...)                                                      \
   __GET_SWI_MACRO(__VA_ARGS__, __SWI_IN_OUT, __SWI_IN, __SWI)(__VA_ARGS__)
 
+/**
+ * @brief Handles software interrupts which are currently only sys calls.
+ *
+ * Depending on the given SWI number, different routines are executed.
+ *
+ * @param number SWI number.
+ * @param context Context of the currently running thread.
+ */
 void sys_call_handler(unsigned int number, struct thread_context *context) {
   unsigned int *registers = thread_registers_from_context(context);
 
@@ -55,6 +63,7 @@ void sys_call_handler(unsigned int number, struct thread_context *context) {
     }
     break;
   case SYSCALL_NUM_IO_PUT_CHAR:
+    // r0 contains the character by convention of the syscall.
     dbgu_putc(registers[0]);
     break;
   case SYSCALL_NUM_REGISTER_IRQ_CALLBACK:
@@ -65,6 +74,21 @@ void sys_call_handler(unsigned int number, struct thread_context *context) {
   }
 }
 
+/**
+ * @brief Handles actions specific to different blocking resources after they
+ * were unblocked.
+ *
+ * Unblocked threads usually get some information after they are unblocked. This
+ * is the place where this data transmission is handled.
+ *
+ * E.g. sys_call_read_char() suspends the reading thread until the DBGU sends a
+ * receive IRQ. The blocked thread will be unblocked and the character is
+ * written to r0 of the threads context, basically finishing the SWI call and
+ * having the char as return value.
+ *
+ * @param blocking_resource The resource type that was unblocked.
+ * @param unblocked_thread_id The thread that was unblocked.
+ */
 void sys_call_post_unblock(enum resource_type blocking_resource,
                            unsigned int unblocked_thread_id) {
   struct thread_context *context = thread_get_context(unblocked_thread_id);

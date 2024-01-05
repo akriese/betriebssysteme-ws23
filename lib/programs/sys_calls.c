@@ -55,6 +55,8 @@ int print_char_repeatedly_with_sleep(void *input) {
   struct print_thread_info *info = (struct print_thread_info *)input;
   const char x = info->c;
   const unsigned int sleep_duration = info->sleep_or_repeat;
+
+  // mark the info block as free, as all the infos were moved to local variables
   info->free = 1;
 
   // print the character 6 times sleeping a short time inbetween

@@ -79,6 +79,10 @@ void scheduler_init(int (*idle_fun)()) {
   create_idle_thread(idle_fun);
 }
 
+/**
+ * @brief Count up the system time and wake up threads whose wakeup time was
+ * exceeded.
+ */
 void scheduler_count_time() {
   struct thread_management *tm = thread_management;
   unsigned int last_time = tm->time_counter;
@@ -86,6 +90,7 @@ void scheduler_count_time() {
 
   if (last_time > tm->time_counter) {
     // TODO: handle time overflow...
+    // this will last about 49h, so hope nobody uses this OS longer xD
   }
 
   int i;
@@ -98,6 +103,12 @@ void scheduler_count_time() {
   }
 }
 
+/**
+ * @brief Switches the execution context to a given thread's context.
+ *
+ * @param thread_id Id of the thread to execute.
+ * @param context Pointer to the context to write to.
+ */
 void scheduler_switch(unsigned int thread_id, struct thread_context *context) {
   unsigned int current_thread_id = thread_management->active_thread_id;
 

@@ -132,6 +132,12 @@ int get_line(char *buffer, unsigned int max_length) {
   return 0;
 }
 
+/**
+ * @brief Parse a string to a signed integer.
+ *
+ * @param s String to be parsed.
+ * @return Parsed number (can be negative)
+ */
 int str_to_int(char *s) {
   int is_negative = *s == '-';
 
@@ -178,10 +184,28 @@ int get_number(char *prompt, int default_number) {
   return number;
 }
 
+/**
+ * @brief checks if the given char is upper case
+ *
+ * @param c character to be checked.
+ * @return 1 if upper case, 0 if not
+ */
 int is_upper(char c) { return c >= 'A' && c <= 'Z'; }
 
+/**
+ * @brief checks if the given char is lower case
+ *
+ * @param c character to be checked.
+ * @return 1 if lower case, 0 if not
+ */
 int is_lower(char c) { return is_upper(c - ('a' - 'A')); }
 
+/**
+ * @brief Checks if the given char is a digit.
+ *
+ * @param c Character to be checked
+ * @return 1 if char is digit, 0 otherwise.
+ */
 int is_digit(char c) { return c >= '0' && c <= '9'; }
 
 /**
