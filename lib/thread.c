@@ -19,12 +19,14 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
   // reset tcb content to get rid off previous content
   memset(new_tcb, 0, sizeof(struct thread_control_block));
 
-  new_tcb->sp = _INTERNAL_THREADS_STACKS_START +
+  struct thread_context *new_ctx = &new_tcb->ctx;
+
+  new_ctx->sp = _INTERNAL_THREADS_STACKS_START +
                 THREAD_STACK_SIZE * (id + 1); // TODO: find good start for stack
-  new_tcb->lr = (unsigned int)sys_call_exit_thread;
-  new_tcb->pc = (unsigned int)fun;
-  new_tcb->cpsr = CPU_MODE_USER; // TODO: find useful default value for cpsr
-  new_tcb->registers[0] = (unsigned int)input;
+  new_ctx->lr = (unsigned int)sys_call_exit_thread;
+  new_ctx->pc = (unsigned int)fun;
+  new_ctx->cpsr = CPU_MODE_USER; // TODO: find useful default value for cpsr
+  new_ctx->registers[0] = (unsigned int)input;
 
   management->last_created_id = id;
 }
@@ -37,6 +39,7 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
 int thread_create(int (*fun)(void *), void *input) {
   unsigned int thread_id = (management->last_created_id + 1) % MAX_NUM_THREADS;
 
+  // find the next available TCB
   while (management->status[thread_id] != TCB_UNUSED &&
          thread_id != management->last_created_id) {
     thread_id = (thread_id + 1) % MAX_NUM_THREADS;
@@ -54,16 +57,31 @@ int thread_create(int (*fun)(void *), void *input) {
   return 0;
 }
 
+/**
+ * @brief Marks the thread's TCB as unused.
+ */
 void thread_finish() {
   unsigned int finished_thread_id = management->active_thread_id;
   management->status[finished_thread_id] = TCB_UNUSED;
 }
 
-void thread_save_context(unsigned int thread_id, void *context) {
-  memcpy(context, &tcbs[thread_id], sizeof(struct thread_control_block));
+/**
+ * @brief Save the context of a given thread to its TCB.
+ *
+ * @param thread_id ID of the thread to be saved.
+ * @param context Context to write to the TCBa.
+ */
+void thread_save_context(unsigned int thread_id,
+                         struct thread_context *context) {
+  // ATTENTION: This copies as many bytes as there are in a TCB
+  // If the TCB is more than just the context, this will lead to unexpected
+  // behaviour.
+  memcpy(context, &tcbs[thread_id].ctx, sizeof(struct thread_context));
 }
 
-void *thread_get_context(unsigned int thread_id) { return &tcbs[thread_id]; }
+struct thread_context *thread_get_context(unsigned int thread_id) {
+  return &tcbs[thread_id].ctx;
+}
 
 void create_idle_thread(int (*idle_fun)()) {
   unsigned int id = MAX_NUM_THREADS - 1;
@@ -119,6 +137,6 @@ void thread_wakeup(unsigned int thread_id) {
   management->wake_up_time[thread_id] = 0;
 }
 
-unsigned int *thread_registers_from_context(void *context) {
-  return ((struct thread_control_block *)context)->registers;
+unsigned int *thread_registers_from_context(struct thread_context *context) {
+  return context->registers;
 }

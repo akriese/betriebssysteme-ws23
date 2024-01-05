@@ -24,7 +24,7 @@ struct thread_management {
 };
 
 // IMPORTANT: cpsr has to come after registers due to an assumption
-struct thread_control_block {
+struct thread_context {
   unsigned int sp;
   unsigned int lr;
   unsigned int pc;
@@ -32,13 +32,18 @@ struct thread_control_block {
   unsigned int registers[13];
 };
 
+struct thread_control_block {
+  struct thread_context ctx;
+};
+
 int thread_create(int (*fun)(void *), void *input);
 
 void thread_finish();
 
-void thread_save_context(unsigned int thread_id, void *context);
+void thread_save_context(unsigned int thread_id,
+                         struct thread_context *context);
 
-void *thread_get_context(unsigned int thread_id);
+struct thread_context *thread_get_context(unsigned int thread_id);
 
 void create_idle_thread(int (*idle_fun)());
 
@@ -50,6 +55,6 @@ int thread_unblock(enum resource_type blocking_resource);
 
 void thread_wakeup(unsigned int thread_id);
 
-unsigned int *thread_registers_from_context(void *context);
+unsigned int *thread_registers_from_context(struct thread_context *context);
 
 #endif /* ifndef _THREAD_H_ */

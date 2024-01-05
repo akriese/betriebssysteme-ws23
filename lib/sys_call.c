@@ -26,7 +26,7 @@
 #define NUMBERED_SWI(...)                                                      \
   __GET_SWI_MACRO(__VA_ARGS__, __SWI_IN_OUT, __SWI_IN, __SWI)(__VA_ARGS__)
 
-void sys_call_handler(unsigned int number, void *context) {
+void sys_call_handler(unsigned int number, struct thread_context *context) {
   unsigned int *registers = thread_registers_from_context(context);
 
   switch (number) {
@@ -67,7 +67,7 @@ void sys_call_handler(unsigned int number, void *context) {
 
 void sys_call_post_unblock(enum resource_type blocking_resource,
                            unsigned int unblocked_thread_id) {
-  void *context = thread_get_context(unblocked_thread_id);
+  struct thread_context *context = thread_get_context(unblocked_thread_id);
   unsigned int *registers = thread_registers_from_context(context);
 
   switch (blocking_resource) {

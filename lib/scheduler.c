@@ -10,9 +10,9 @@ struct thread_management *const thread_management =
 
 void scheduler_end_thread();
 
-void write_context(void *context, unsigned int thread_id) {
+void write_context(struct thread_context *context, unsigned int thread_id) {
   // load context of the next thread
-  void *new_ctx = thread_get_context(thread_id);
+  struct thread_context *new_ctx = thread_get_context(thread_id);
   memcpy(new_ctx, context, sizeof(struct thread_control_block));
 }
 
@@ -21,7 +21,7 @@ void write_context(void *context, unsigned int thread_id) {
  *
  * @param context Pointer where to read and write the context from/to
  */
-void scheduler_next(void *context) {
+void scheduler_next(struct thread_context *context) {
   int old_thread_id = thread_management->active_thread_id;
   const unsigned int idle_id = MAX_NUM_THREADS - 1;
 
@@ -106,7 +106,7 @@ void scheduler_count_time() {
   }
 }
 
-void scheduler_switch(unsigned int thread_id, void *context) {
+void scheduler_switch(unsigned int thread_id, struct thread_context *context) {
   unsigned int current_thread_id = thread_management->active_thread_id;
 
   // save old thread's context to its tcb

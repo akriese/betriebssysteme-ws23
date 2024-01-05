@@ -1,6 +1,8 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
 
+#include <thread.h>
+
 enum cpu_mode {
   CPU_MODE_USER = 0x10,
   CPU_MODE_FIQ = 0x11,
@@ -28,7 +30,7 @@ int st_get_intervall();
 void init_sys_interrupts();
 
 void register_interrupt_routines(enum interrupt_handler_routines routine,
-                                 void (*handler)(void *));
+                                 void (*handler)(struct thread_context *));
 
 void cpsr_enable_interrupts();
 

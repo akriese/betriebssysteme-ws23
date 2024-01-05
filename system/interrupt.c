@@ -33,7 +33,8 @@ struct aic {
 volatile struct aic *const aic = (struct aic *)AIC;
 
 // array of function pointers holding interrupt routines
-void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(void *context);
+void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(
+    struct thread_context *context);
 
 /**
  * @brief Registers a routine to handle a certain interrupt.
@@ -44,7 +45,7 @@ void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(void *context);
  * @param handler Function pointer to the handler.
  */
 void register_interrupt_routines(enum interrupt_handler_routines routine,
-                                 void (*handler)(void *)) {
+                                 void (*handler)(struct thread_context *)) {
   handlers[routine] = handler;
 }
 
@@ -56,7 +57,7 @@ void register_interrupt_routines(enum interrupt_handler_routines routine,
  *
  * @param context The context of the currently running thread.
  */
-void system_interrupt_handler(void *context) {
+void system_interrupt_handler(struct thread_context *context) {
   // read status registers of the system peripherals
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {
