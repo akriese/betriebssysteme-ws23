@@ -4,6 +4,13 @@
 .extern set_banked_registers
 .extern restore_context
 
+/**
+* System interrupt handler
+*
+* This function saves the current context (registers, cpsr) and executes the
+* C system interrupt handler. The handler might change the context (e.g. thread switch).
+* Afterwards, the context is restored to proceed with the usual execution.
+*/
 .global handle_sys_interrupt
 handle_sys_interrupt:
         /* save important registers; IRQ mode lr is the usr mode's pc */

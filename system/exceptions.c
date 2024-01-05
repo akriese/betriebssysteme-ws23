@@ -8,6 +8,12 @@ void undef_handler(unsigned int registers[16]) {
   return;
 }
 
+/**
+ * @brief SWI handler that forwards the arguments to the sys_call_handler.
+ *
+ * @param number SWI number
+ * @param context The currently running thread's context.
+ */
 void swi_handler(unsigned int number, void *context) {
   // print("SWI (no. %d) at %p\n\r", number, (void *)(context[2] - 4));
   sys_call_handler(number, context);

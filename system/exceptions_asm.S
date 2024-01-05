@@ -23,10 +23,16 @@ jt_unhandled:   .word unhandled_trampoline
 .global _ivt_end
 _ivt_end:
 
+/**
+* Restores the context of a thread which currenly lies on the stack.
+*
+* The stack is assumed to look like: (left is at higher address)
+* pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp
+*
+* At the end, lr is moved to pc to resume with the normal execution
+*/
 .global restore_context
 restore_context:
-        /* Stack looks like: (left is at higher address)
-        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
 
         mov r0, #0x1f
         bl set_banked_registers
@@ -61,6 +67,14 @@ undef_trampoline:
 
         b _Lend
 
+/**
+* Software interrupt handler
+*
+* This function saves the current context (registers, cpsr), extracts the SWI number
+* and executes the C SWI handler.
+* The handler might change the context (e.g. thread switch).
+* Afterwards, the context is restored to proceed with the usual execution.
+*/
 swi_trampoline:
         /* save important registers; IRQ mode lr is the usr mode's pc */
         stmfd sp!, {r0-r12}

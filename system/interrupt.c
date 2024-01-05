@@ -35,22 +35,46 @@ volatile struct aic *const aic = (struct aic *)AIC;
 // array of function pointers holding interrupt routines
 void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(void *context);
 
+/**
+ * @brief Registers a routine to handle a certain interrupt.
+ *
+ * The routine will receive the current thread's context as argument.
+ *
+ * @param routine IRQ routine type
+ * @param handler Function pointer to the handler.
+ */
 void register_interrupt_routines(enum interrupt_handler_routines routine,
                                  void (*handler)(void *)) {
   handlers[routine] = handler;
 }
 
+/**
+ * @brief Handling interrupts on IRQ line 1 (system).
+ *
+ * Needs to find out which instance caused the interrupt and then calls
+ * routines accordingly.
+ *
+ * @param context The context of the currently running thread.
+ */
 void system_interrupt_handler(void *context) {
   // read status registers of the system peripherals
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {
+    // count up the system time and wake up threads that were sleeping
     scheduler_count_time();
+
+    // switch to another thread if possible
     scheduler_next(context);
+
+    // execute a handler if registered
     if (handlers[SYSTEM_TIMER_HANDLER]) {
       handlers[SYSTEM_TIMER_HANDLER](context);
     }
   } else if (dbgu_interrupt_active()) {
+    // process the received character
     dbgu_receive_interrupt_handler();
+
+    // execute a handler if registered
     if (handlers[DBGU_RECEIVE_HANDLER]) {
       handlers[DBGU_RECEIVE_HANDLER](context);
     }
