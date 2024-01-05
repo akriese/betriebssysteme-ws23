@@ -10,6 +10,7 @@
 struct print_thread_info {
   unsigned int sleep_or_repeat;
   char c;
+  char free; // set to 1 (freed) by print threads
 };
 
 struct print_thread_info thread_info_buffer[MAX_NUM_THREADS];
@@ -19,9 +20,10 @@ static int sleep_time = 500;
 static int million_computation_cycles = 200;
 
 int print_char_repeatedly_with_computation(void *input) {
-  const struct print_thread_info *info = (struct print_thread_info *)input;
+  struct print_thread_info *info = (struct print_thread_info *)input;
   const char x = info->c;
   const unsigned int compute_repititions = info->sleep_or_repeat;
+  info->free = 1;
 
   // print the character 6 times with small pauses
   volatile int c = 6;
@@ -36,9 +38,10 @@ int print_char_repeatedly_with_computation(void *input) {
 }
 
 int print_char_repeatedly_with_sleep(void *input) {
-  const struct print_thread_info *info = (struct print_thread_info *)input;
+  struct print_thread_info *info = (struct print_thread_info *)input;
   const char x = info->c;
   const unsigned int sleep_duration = info->sleep_or_repeat;
+  info->free = 1;
 
   // print the character 6 times sleeping a short time inbetween
   volatile int c = 6;
@@ -52,12 +55,23 @@ int print_char_repeatedly_with_sleep(void *input) {
 }
 
 int input_callback(char c) {
+  // check for an unused thread info object
+  int count = 0;
+  while (!thread_info_buffer[started_threads_counter % MAX_NUM_THREADS].free &&
+         count++ < MAX_NUM_THREADS) {
+    started_threads_counter++;
+  }
+
+  if (count == MAX_NUM_THREADS) {
+    print("No thread info block available...\n\r");
+    return 1;
+  }
+
   struct print_thread_info *thread_info =
       &thread_info_buffer[started_threads_counter % MAX_NUM_THREADS];
 
-  char tmp_char = thread_info->c;
-  char tmp_sleep_or_repeat = thread_info->sleep_or_repeat;
-
+  // lock this block from being accessed by another call of this function
+  thread_info->free = 0;
   thread_info->c = c;
 
   int create_result;
@@ -74,12 +88,6 @@ int input_callback(char c) {
   } else {
     print("Not a valid character! Doing nothing!\n\r");
     return 1;
-  }
-
-  // if it didnt work out, reset the old value of the input holding array
-  if (create_result != 0) {
-    thread_info->c = tmp_char;
-    thread_info->sleep_or_repeat = tmp_sleep_or_repeat;
   }
 
   started_threads_counter++;
@@ -133,6 +141,12 @@ int sys_call_application() {
   cpsr_enable_interrupts();
 
   print("The application starts now!\n\r");
+
+  // mark all thread infos as free before usage
+  int i;
+  for (i = 0; i < MAX_NUM_THREADS; ++i) {
+    thread_info_buffer[i].free = 1;
+  }
 
   sys_call_create_thread(thread_starter, 0);
 
