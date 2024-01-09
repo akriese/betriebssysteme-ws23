@@ -12,7 +12,7 @@ extern struct thread_management *const thread_management;
 void write_context(struct thread_context *context, unsigned int thread_id) {
   // load context of the next thread
   struct thread_context *new_ctx = thread_get_context(thread_id);
-  memcpy(new_ctx, context, sizeof(struct thread_control_block));
+  memcpy(new_ctx, context, sizeof(struct thread_context));
 }
 
 /**
