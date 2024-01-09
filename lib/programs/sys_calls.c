@@ -41,6 +41,7 @@ int print_char_repeatedly_with_computation(void *input) {
     }
   }
 
+  sys_call_exit_thread();
   return 0;
 }
 
@@ -67,6 +68,7 @@ int print_char_repeatedly_with_sleep(void *input) {
     sys_call_sleep(sleep_duration);
   }
 
+  sys_call_exit_thread();
   return 0;
 }
 
@@ -145,6 +147,7 @@ int thread_starter(void *__unused) {
     input_callback(c);
   }
 
+  sys_call_exit_thread();
   return 0;
 }
 
