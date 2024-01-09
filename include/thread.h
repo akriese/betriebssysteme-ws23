@@ -15,12 +15,9 @@ enum thread_status {
 };
 
 struct thread_management {
-  enum thread_status status[MAX_NUM_THREADS]; // 0 if thread block is free
   int active_thread_id; // id of the currently running thread
   unsigned int last_created_id;
   unsigned int time_counter;
-  unsigned int wake_up_time[MAX_NUM_THREADS];
-  enum resource_type block_reason[MAX_NUM_THREADS];
 };
 
 // IMPORTANT: cpsr has to come after registers due to an assumption
@@ -34,6 +31,9 @@ struct thread_context {
 
 struct thread_control_block {
   struct thread_context ctx;
+  enum thread_status status;
+  unsigned int wake_up_time;
+  enum resource_type block_reason;
 };
 
 int thread_create(int (*fun)(void *), void *input);

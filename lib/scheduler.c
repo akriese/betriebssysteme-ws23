@@ -5,8 +5,9 @@
 #include <system.h>
 #include <thread.h>
 
-struct thread_management *const thread_management =
-    (struct thread_management *)_INTERNAL_THREADS_MANAGEMENT_START;
+// these are defined in lib/thread.c
+extern struct thread_control_block *const tcbs;
+extern struct thread_management *const thread_management;
 
 void write_context(struct thread_context *context, unsigned int thread_id) {
   // load context of the next thread
@@ -31,22 +32,21 @@ void scheduler_next(struct thread_context *context) {
 
   // save old thread's context to its tcb
   // but only if they are given and the thread is active (not finished)
-  if (context != 0 && thread_management->status[old_thread_id] != TCB_UNUSED) {
+  if (context != 0 && tcbs[old_thread_id].status != TCB_UNUSED) {
     thread_save_context(old_thread_id, context);
   }
 
   // idle thread stays marked as idle and only active threads are marked as
   // ready. avoids marking threads as ready which were just put to sleep or
   // are waiting
-  if (old_thread_id != idle_id &&
-      thread_management->status[old_thread_id] == THREAD_ACTIVE) {
-    thread_management->status[old_thread_id] = THREAD_READY;
+  if (old_thread_id != idle_id && tcbs[old_thread_id].status == THREAD_ACTIVE) {
+    tcbs[old_thread_id].status = THREAD_READY;
   }
 
   int new_thread_id = (old_thread_id + 1) % MAX_NUM_THREADS;
 
   // select next available thread to run
-  while (thread_management->status[new_thread_id] != THREAD_READY &&
+  while (tcbs[new_thread_id].status != THREAD_READY &&
          new_thread_id != old_thread_id) {
     new_thread_id = (new_thread_id + 1) % MAX_NUM_THREADS;
   }
@@ -54,12 +54,12 @@ void scheduler_next(struct thread_context *context) {
   // no other thread available and last active thread not ready
   // execute idle thread instead
   if (new_thread_id == old_thread_id &&
-      thread_management->status[new_thread_id] != THREAD_READY) {
+      tcbs[new_thread_id].status != THREAD_READY) {
     new_thread_id = idle_id;
   }
 
   if (new_thread_id != idle_id) {
-    thread_management->status[new_thread_id] = THREAD_ACTIVE;
+    tcbs[new_thread_id].status = THREAD_ACTIVE;
   }
 
   if (new_thread_id != old_thread_id) {
@@ -73,8 +73,6 @@ void scheduler_init(int (*idle_fun)()) {
   thread_management->active_thread_id = -1;
   thread_management->last_created_id = -1;
   thread_management->time_counter = 0;
-  memset(&thread_management->status, 0,
-         sizeof(enum thread_status) * MAX_NUM_THREADS);
 
   create_idle_thread(idle_fun);
 }
@@ -95,9 +93,9 @@ void scheduler_count_time() {
 
   int i;
   for (i = 0; i < MAX_NUM_THREADS; ++i) {
-    if (tm->status[i] == THREAD_BLOCKED &&
-        tm->block_reason[i] == RESOURCE_WAITING_TIME &&
-        tm->wake_up_time[i] < tm->time_counter) {
+    if (tcbs[i].status == THREAD_BLOCKED &&
+        tcbs[i].block_reason == RESOURCE_WAITING_TIME &&
+        tcbs[i].wake_up_time < tm->time_counter) {
       thread_wakeup(i);
     }
   }
@@ -114,13 +112,13 @@ void scheduler_switch(unsigned int thread_id, struct thread_context *context) {
 
   // save old thread's context to its tcb
   // but only if they are given and the thread is active (not finished)
-  if (thread_management->status[current_thread_id] != TCB_UNUSED) {
+  if (tcbs[current_thread_id].status != TCB_UNUSED) {
     thread_save_context(current_thread_id, context);
   }
 
   // set ready status for current thread except if it was the idle thread
   if (current_thread_id != MAX_NUM_THREADS - 1) {
-    thread_management->status[current_thread_id] = THREAD_READY;
+    tcbs[current_thread_id].status = THREAD_READY;
   }
 
   write_context(context, thread_id);

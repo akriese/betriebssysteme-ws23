@@ -1,7 +1,7 @@
-#include "resource.h"
 #include <mem.h>
 #include <mem_layout.h>
 #include <print.h>
+#include <resource.h>
 #include <scheduler.h>
 #include <sys_call.h>
 #include <system.h>
@@ -10,7 +10,7 @@
 struct thread_control_block *const tcbs =
     (struct thread_control_block *)_INTERNAL_THREADS_TCB_ARRAY_START;
 
-struct thread_management *const management =
+struct thread_management *const thread_management =
     (struct thread_management *)_INTERNAL_THREADS_MANAGEMENT_START;
 
 void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
@@ -27,7 +27,7 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
   new_ctx->cpsr = CPU_MODE_USER;
   new_ctx->registers[0] = (unsigned int)input;
 
-  management->last_created_id = id;
+  thread_management->last_created_id = id;
 }
 
 /**
@@ -36,22 +36,23 @@ void __create_thread(unsigned int id, int (*fun)(void *), void *input) {
  * @return 0 on success, 1 on failure (e.g. no free TCB)
  */
 int thread_create(int (*fun)(void *), void *input) {
-  unsigned int thread_id = (management->last_created_id + 1) % MAX_NUM_THREADS;
+  unsigned int thread_id =
+      (thread_management->last_created_id + 1) % MAX_NUM_THREADS;
 
   // find the next available TCB
-  while (management->status[thread_id] != TCB_UNUSED &&
-         thread_id != management->last_created_id) {
+  while (tcbs[thread_id].status != TCB_UNUSED &&
+         thread_id != thread_management->last_created_id) {
     thread_id = (thread_id + 1) % MAX_NUM_THREADS;
   }
 
   // return a failing code if there are no free TCBs
-  if (thread_id == management->last_created_id) {
+  if (thread_id == thread_management->last_created_id) {
     return 1;
   }
 
   __create_thread(thread_id, fun, input);
 
-  management->status[thread_id] = THREAD_READY;
+  tcbs[thread_id].status = THREAD_READY;
 
   return 0;
 }
@@ -60,8 +61,8 @@ int thread_create(int (*fun)(void *), void *input) {
  * @brief Marks the thread's TCB as unused.
  */
 void thread_finish() {
-  unsigned int finished_thread_id = management->active_thread_id;
-  management->status[finished_thread_id] = TCB_UNUSED;
+  unsigned int finished_thread_id = thread_management->active_thread_id;
+  tcbs[finished_thread_id].status = TCB_UNUSED;
 }
 
 /**
@@ -89,7 +90,7 @@ void create_idle_thread(int (*idle_fun)()) {
   unsigned int id = MAX_NUM_THREADS - 1;
   __create_thread(id, idle_fun, 0);
 
-  management->status[id] = IDLE;
+  tcbs[id].status = IDLE;
 }
 
 /**
@@ -101,13 +102,13 @@ void create_idle_thread(int (*idle_fun)()) {
  * @param duration *Minimum* sleep time in ms
  */
 void thread_sleep(unsigned int duration) {
-  int thread_id = management->active_thread_id;
+  int thread_id = thread_management->active_thread_id;
 
   // set the thread's status to asleep
   thread_wait(RESOURCE_WAITING_TIME);
 
   // register thread's sleep end time
-  management->wake_up_time[thread_id] = management->time_counter + duration;
+  tcbs[thread_id].wake_up_time = thread_management->time_counter + duration;
 }
 
 /**
@@ -117,13 +118,13 @@ void thread_sleep(unsigned int duration) {
  * @param blocking_resource The resource that thread is blocked by.
  */
 void thread_wait(enum resource_type blocking_resource) {
-  int thread_id = management->active_thread_id;
+  int thread_id = thread_management->active_thread_id;
 
   // set the thread's status to blocked
-  management->status[thread_id] = THREAD_BLOCKED;
+  tcbs[thread_id].status = THREAD_BLOCKED;
 
   // register thread's wake up action (interrupt)
-  management->block_reason[thread_id] = blocking_resource;
+  tcbs[thread_id].block_reason = blocking_resource;
 }
 
 /**
@@ -133,15 +134,15 @@ void thread_wait(enum resource_type blocking_resource) {
  * @return The id of the unblocked thread. If none was unblocked, returns -1.
  */
 int thread_unblock(enum resource_type blocking_resource) {
-  int thread_id = management->active_thread_id;
-
+  // TODO: dont always start to search at t = 0, instead
+  // have a queue or something similar to manage the next unblocked thread
   int i;
   for (i = 0; i < MAX_NUM_THREADS; ++i) {
     // only the first matching thread is unblocked
-    if (management->status[i] == THREAD_BLOCKED &&
-        management->block_reason[i] == blocking_resource) {
-      management->status[i] = THREAD_READY;
-      management->block_reason[i] = RESOURCE_NONE;
+    if (tcbs[i].status == THREAD_BLOCKED &&
+        tcbs[i].block_reason == blocking_resource) {
+      tcbs[i].status = THREAD_READY;
+      tcbs[i].block_reason = RESOURCE_NONE;
       return i;
     }
   }
@@ -157,8 +158,8 @@ int thread_unblock(enum resource_type blocking_resource) {
  * @param thread_id Id of the thread to be woken.
  */
 void thread_wakeup(unsigned int thread_id) {
-  management->status[thread_id] = THREAD_READY;
-  management->wake_up_time[thread_id] = 0;
+  tcbs[thread_id].status = THREAD_READY;
+  tcbs[thread_id].wake_up_time = 0;
 }
 
 /**
