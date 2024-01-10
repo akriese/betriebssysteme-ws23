@@ -11,7 +11,12 @@ enum thread_status {
   THREAD_ACTIVE = 1,
   THREAD_ASLEEP = 2,
   THREAD_BLOCKED = 3,
-  IDLE = 4,
+};
+
+enum thread_role {
+  THREAD_ROLE_SYSTEM,
+  THREAD_ROLE_USER,
+  THREAD_ROLE_IDLE,
 };
 
 struct thread_management {
@@ -34,6 +39,7 @@ struct thread_control_block {
   enum thread_status status;
   unsigned int wake_up_time;
   enum resource_type block_reason;
+  enum thread_role role;
 };
 
 int thread_create(int (*fun)(void *), void *input);

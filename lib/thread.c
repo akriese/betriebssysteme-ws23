@@ -53,6 +53,7 @@ int thread_create(int (*fun)(void *), void *input) {
   __create_thread(thread_id, fun, input);
 
   tcbs[thread_id].status = THREAD_READY;
+  tcbs[thread_id].role = THREAD_ROLE_USER;
 
   return 0;
 }
@@ -76,6 +77,12 @@ void thread_save_context(unsigned int thread_id,
   memcpy(context, &tcbs[thread_id].ctx, sizeof(struct thread_context));
 }
 
+/**
+ * @brief Access the given thread's context and return a pointer to it.
+ *
+ * @param thread_id Id of the thread to get the context from.
+ * @return Pointer to the context block.
+ */
 struct thread_context *thread_get_context(unsigned int thread_id) {
   return &tcbs[thread_id].ctx;
 }
@@ -90,7 +97,8 @@ void create_idle_thread(int (*idle_fun)()) {
   unsigned int id = MAX_NUM_THREADS - 1;
   __create_thread(id, idle_fun, 0);
 
-  tcbs[id].status = IDLE;
+  tcbs[id].status = THREAD_READY;
+  tcbs[id].role = THREAD_ROLE_IDLE;
 }
 
 /**

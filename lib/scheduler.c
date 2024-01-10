@@ -36,18 +36,22 @@ void scheduler_next(struct thread_context *context) {
     thread_save_context(old_thread_id, context);
   }
 
-  // idle thread stays marked as idle and only active threads are marked as
-  // ready. avoids marking threads as ready which were just put to sleep or
+  // avoids marking threads as ready which were just put to sleep or
   // are waiting
-  if (old_thread_id != idle_id && tcbs[old_thread_id].status == THREAD_ACTIVE) {
+  if (tcbs[old_thread_id].status == THREAD_ACTIVE) {
     tcbs[old_thread_id].status = THREAD_READY;
   }
 
+  // start searching the next available thread at the next position
+  // This is essentially leads to a round robin scheduling
   int new_thread_id = (old_thread_id + 1) % MAX_NUM_THREADS;
 
   // select next available thread to run
-  while (tcbs[new_thread_id].status != THREAD_READY &&
-         new_thread_id != old_thread_id) {
+  // iterate as long as the thread with the id is:
+  // not the previously running AND either an idle OR not ready thread
+  while (new_thread_id != old_thread_id &&
+         (tcbs[new_thread_id].role == THREAD_ROLE_IDLE ||
+          tcbs[new_thread_id].status != THREAD_READY)) {
     new_thread_id = (new_thread_id + 1) % MAX_NUM_THREADS;
   }
 
@@ -58,9 +62,7 @@ void scheduler_next(struct thread_context *context) {
     new_thread_id = idle_id;
   }
 
-  if (new_thread_id != idle_id) {
-    tcbs[new_thread_id].status = THREAD_ACTIVE;
-  }
+  tcbs[new_thread_id].status = THREAD_ACTIVE;
 
   if (new_thread_id != old_thread_id) {
     write_context(context, new_thread_id);
@@ -69,6 +71,11 @@ void scheduler_next(struct thread_context *context) {
   }
 }
 
+/**
+ * @brief Initialize the scheduler data structures and create the idle thread.
+ *
+ * @param idle_fun Function to run when no other thread is ready to run.
+ */
 void scheduler_init(int (*idle_fun)()) {
   thread_management->active_thread_id = -1;
   thread_management->last_created_id = -1;
@@ -116,10 +123,7 @@ void scheduler_switch(unsigned int thread_id, struct thread_context *context) {
     thread_save_context(current_thread_id, context);
   }
 
-  // set ready status for current thread except if it was the idle thread
-  if (current_thread_id != MAX_NUM_THREADS - 1) {
-    tcbs[current_thread_id].status = THREAD_READY;
-  }
+  tcbs[current_thread_id].status = THREAD_READY;
 
   write_context(context, thread_id);
   thread_management->active_thread_id = thread_id;
