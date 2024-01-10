@@ -1,8 +1,7 @@
 .extern system_interrupt_handler
 .extern register_dump
-.extern get_banked_registers
-.extern set_banked_registers
-.extern restore_context
+.extern add_context_to_stack
+.extern restore_context_from_stack
 
 /**
 * System interrupt handler
@@ -13,26 +12,15 @@
 */
 .global handle_sys_interrupt
 handle_sys_interrupt:
-        /* save important registers; IRQ mode lr is the usr mode's pc */
-        stmfd sp!, {r0-r12}
+        push {lr}
+        bl add_context_to_stack
 
-        @ save saved psr
-        mrs r1, spsr
-        mov r0, lr
-
-        /* push pc, cpsr */
-        stmfd sp!, {r0, r1}
-
-        mov r0, #0x1f
-        bl get_banked_registers
-
-        /* Stack looks like: (left is at higher address)
-           pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
+        /* Stack looks like:
+           user mode pc, lr(from above bl), cpsr, pc, lr, sp, r12, r11, ..., r1, r0(<-)*/
 
         mov r0, sp
 
         /* handle interrupt */
         bl system_interrupt_handler
 
-        b restore_context
-
+        b restore_context_from_stack

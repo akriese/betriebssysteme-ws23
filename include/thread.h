@@ -25,13 +25,12 @@ typedef struct thread_management {
   unsigned int time_counter;
 } thread_management;
 
-// IMPORTANT: cpsr has to come after registers due to an assumption
 typedef struct thread_context {
+  unsigned int registers[13];
   unsigned int sp;
   unsigned int lr;
   unsigned int pc;
   unsigned int cpsr;
-  unsigned int registers[13];
 } thread_context;
 
 typedef struct thread_control_block {
@@ -46,8 +45,7 @@ int thread_create(int (*fun)(void *), void *input);
 
 void thread_finish();
 
-void thread_save_context(unsigned int thread_id,
-                         thread_context *context);
+void thread_save_context(unsigned int thread_id, thread_context *context);
 
 thread_context *thread_get_context(unsigned int thread_id);
 
