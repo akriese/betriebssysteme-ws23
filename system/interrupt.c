@@ -11,7 +11,7 @@
 
 extern void handle_sys_interrupt();
 
-struct aic {
+typedef struct advanced_interrupt_controller {
   unsigned int smr[32];
   void *svr[32];
   unsigned int __ivr;
@@ -28,13 +28,13 @@ struct aic {
   unsigned int eoicr;
   unsigned int spu;
   unsigned int dcr;
-};
+} advanced_interrupt_controller;
 
-volatile struct aic *const aic = (struct aic *)AIC;
+volatile advanced_interrupt_controller *const aic =
+    (advanced_interrupt_controller *)AIC;
 
 // array of function pointers holding interrupt routines
-void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(
-    struct thread_context *context);
+void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(thread_context *context);
 
 /**
  * @brief Registers a routine to handle a certain interrupt.
@@ -44,8 +44,8 @@ void (*handlers[_INTERRUPT_HANDLER_ROUTINES_END])(
  * @param routine IRQ routine type
  * @param handler Function pointer to the handler.
  */
-void register_interrupt_routines(enum interrupt_handler_routines routine,
-                                 void (*handler)(struct thread_context *)) {
+void register_interrupt_routines(interrupt_handler_routines routine,
+                                 void (*handler)(thread_context *)) {
   handlers[routine] = handler;
 }
 
@@ -57,7 +57,7 @@ void register_interrupt_routines(enum interrupt_handler_routines routine,
  *
  * @param context The context of the currently running thread.
  */
-void system_interrupt_handler(struct thread_context *context) {
+void system_interrupt_handler(thread_context *context) {
   // read status registers of the system peripherals
   // to determine where the interrupt comes from
   if (st_interrupt_active()) {

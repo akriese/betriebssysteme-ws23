@@ -1,7 +1,7 @@
 #include <mem_addresses.h>
 #include <print.h>
 
-struct system_timer {
+typedef struct system_timer {
   unsigned int cr;
   unsigned int pimr;
   unsigned int __wdmr;
@@ -12,10 +12,9 @@ struct system_timer {
   unsigned int imr;
   unsigned int __rtar;
   unsigned int __crtr;
-};
+} system_timer;
 
-volatile struct system_timer *const system_timer =
-    (struct system_timer *)SYSTEM_TIMER;
+volatile system_timer *const st = (system_timer *)SYSTEM_TIMER;
 
 /**
  * @brief Converts milliseconds to the system timer intervall.
@@ -48,8 +47,8 @@ void st_activate_pits(unsigned short ms) {
     print("Reducing the intervall down to %d (max ms=2000)\n\r", 0xffff);
     intervall = 0xffff;
   }
-  system_timer->pimr = intervall; // set the time
-  system_timer->ier = 1 << 0;     // set the bit for the PITS interrupt
+  st->pimr = intervall; // set the time
+  st->ier = 1 << 0;     // set the bit for the PITS interrupt
 }
 
 /**
@@ -57,11 +56,11 @@ void st_activate_pits(unsigned short ms) {
  *
  * @return 1 if active, 0 if not
  */
-int st_interrupt_active() { return system_timer->sr & 1 << 0; }
+int st_interrupt_active() { return st->sr & 1 << 0; }
 
 /**
  * @brief Gets the current intervall of the PITS in ms.
  *
  * @return The intervall in ms.
  */
-int st_get_intervall() { return intervall_to_ms(system_timer->pimr); }
+int st_get_intervall() { return intervall_to_ms(st->pimr); }

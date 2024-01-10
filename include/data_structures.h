@@ -6,12 +6,12 @@
  * @brief Ring buffer for [unsigned int] with a length and two indices marking
  * current input and output pointers
  */
-struct ring_buffer {
+typedef struct ring_buffer {
   unsigned int length;
   unsigned int next_in;
   unsigned int next_out;
   unsigned int *buffer;
-};
+} ring_buffer;
 
 /**
  * @brief Creates a ring buffer where the buffer lies directly after the *buffer
@@ -23,9 +23,9 @@ struct ring_buffer {
  * @param start Pointer to the start of the object in memory.
  * @return Pointer to the created object.
  */
-volatile struct ring_buffer *ring_buffer_create(unsigned int size,
-                                                unsigned int *start) {
-  volatile struct ring_buffer *b = (struct ring_buffer *)start;
+volatile ring_buffer *ring_buffer_create(unsigned int size,
+                                         unsigned int *start) {
+  volatile ring_buffer *b = (ring_buffer *)start;
   b->length = (size / 4) - 4;
   b->buffer = start + 4;
   b->next_in = 0;
@@ -37,11 +37,11 @@ volatile struct ring_buffer *ring_buffer_create(unsigned int size,
 /**
  * @brief Checks if the given ring_buffer has a next element.
  */
-int ring_buffer_available(volatile struct ring_buffer *b) {
+int ring_buffer_available(volatile ring_buffer *b) {
   return b->next_out != b->next_in;
 }
 
-void ring_buffer_put(volatile struct ring_buffer *b, unsigned int element) {
+void ring_buffer_put(volatile ring_buffer *b, unsigned int element) {
   b->buffer[b->next_in] = element;
   b->next_in = (b->next_in + 1) % b->length;
 }
@@ -50,7 +50,7 @@ void ring_buffer_put(volatile struct ring_buffer *b, unsigned int element) {
  * Returns 0 if there is no new element in the buffer.
  * Otherwise returns the pointer to the object to get.
  */
-unsigned int *ring_buffer_get(volatile struct ring_buffer *b) {
+unsigned int *ring_buffer_get(volatile ring_buffer *b) {
   if (!ring_buffer_available(b)) {
     return 0;
   }

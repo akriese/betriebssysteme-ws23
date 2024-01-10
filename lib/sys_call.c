@@ -34,7 +34,7 @@
  * @param number SWI number.
  * @param context Context of the currently running thread.
  */
-void sys_call_handler(unsigned int number, struct thread_context *context) {
+void sys_call_handler(unsigned int number, thread_context *context) {
   unsigned int *registers = thread_registers_from_context(context);
 
   switch (number) {
@@ -91,7 +91,7 @@ void sys_call_handler(unsigned int number, struct thread_context *context) {
  */
 void sys_call_post_unblock(enum resource_type blocking_resource,
                            unsigned int unblocked_thread_id) {
-  struct thread_context *context = thread_get_context(unblocked_thread_id);
+  thread_context *context = thread_get_context(unblocked_thread_id);
   unsigned int *registers = thread_registers_from_context(context);
 
   switch (blocking_resource) {

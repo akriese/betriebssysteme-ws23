@@ -13,7 +13,7 @@
 
 #define IER_RXRDY_BIT 0
 
-struct dbgu {
+typedef struct dbgu_mem {
   unsigned int cr;
   unsigned int __mr;
   unsigned int ier;
@@ -26,11 +26,11 @@ struct dbgu {
   unsigned int __reserved[(0x40 - 0x24) >> 2];
   unsigned int __cidr;
   unsigned int __exid;
-};
+} dbgu_mem;
 
-volatile struct dbgu *const dbgu = (struct dbgu *)DBGU;
+volatile dbgu_mem *const dbgu = (dbgu_mem *)DBGU;
 
-volatile struct ring_buffer *receive_buffer;
+volatile ring_buffer *receive_buffer;
 
 /*
  * Returns 1 if a bit at the given position at the given address is set.

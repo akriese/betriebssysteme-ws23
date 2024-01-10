@@ -11,8 +11,8 @@
 #define SYSCALL_NUM_IO_PUT_CHAR 5
 #define SYSCALL_NUM_REGISTER_IRQ_CALLBACK 6
 
-void sys_call_handler(unsigned int number, struct thread_context *context);
-void sys_call_post_unblock(enum resource_type blocking_resource,
+void sys_call_handler(unsigned int number, thread_context *context);
+void sys_call_post_unblock(resource_type blocking_resource,
                            unsigned int unblocked_thread_id);
 
 void sys_call_exit_thread();

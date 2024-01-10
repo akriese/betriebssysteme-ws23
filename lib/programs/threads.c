@@ -38,7 +38,7 @@ void create_char_print_thread() {
   }
 }
 
-void schedule_on_timer_irq(struct thread_context *context) {
+void schedule_on_timer_irq(thread_context *context) {
   print("!");
   scheduler_next(context);
 }

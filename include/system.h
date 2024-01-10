@@ -3,7 +3,7 @@
 
 #include <thread.h>
 
-enum cpu_mode {
+typedef enum cpu_mode {
   CPU_MODE_USER = 0x10,
   CPU_MODE_FIQ = 0x11,
   CPU_MODE_IRQ = 0x12,
@@ -11,13 +11,13 @@ enum cpu_mode {
   CPU_MODE_ABT = 0x17,
   CPU_MODE_UND = 0x1b,
   CPU_MODE_SYS = 0x1f,
-};
+} cpu_mode;
 
-enum interrupt_handler_routines {
+typedef enum interrupt_handler_routines {
   SYSTEM_TIMER_HANDLER,
   DBGU_RECEIVE_HANDLER,
   _INTERRUPT_HANDLER_ROUTINES_END // used to find out the number of routines
-};
+} interrupt_handler_routines;
 
 void mc_remap();
 
@@ -29,8 +29,8 @@ int st_get_intervall();
 
 void init_sys_interrupts();
 
-void register_interrupt_routines(enum interrupt_handler_routines routine,
-                                 void (*handler)(struct thread_context *));
+void register_interrupt_routines(interrupt_handler_routines routine,
+                                 void (*handler)(thread_context *));
 
 void cpsr_enable_interrupts();
 

@@ -6,13 +6,13 @@
 #include <thread.h>
 
 // these are defined in lib/thread.c
-extern struct thread_control_block *const tcbs;
-extern struct thread_management *const thread_management;
+extern thread_control_block *const tcbs;
+extern thread_management *const t_management;
 
-void write_context(struct thread_context *context, unsigned int thread_id) {
+void write_context(thread_context *context, unsigned int thread_id) {
   // load context of the next thread
-  struct thread_context *new_ctx = thread_get_context(thread_id);
-  memcpy(new_ctx, context, sizeof(struct thread_context));
+  thread_context *new_ctx = thread_get_context(thread_id);
+  memcpy(new_ctx, context, sizeof(thread_context));
 }
 
 /**
@@ -20,13 +20,13 @@ void write_context(struct thread_context *context, unsigned int thread_id) {
  *
  * @param context Pointer where to read and write the context from/to
  */
-void scheduler_next(struct thread_context *context) {
-  int old_thread_id = thread_management->active_thread_id;
+void scheduler_next(thread_context *context) {
+  int old_thread_id = t_management->active_thread_id;
   const unsigned int idle_id = MAX_NUM_THREADS - 1;
 
   if (old_thread_id == -1) {
     write_context(context, idle_id);
-    thread_management->active_thread_id = idle_id;
+    t_management->active_thread_id = idle_id;
     return;
   }
 
@@ -67,7 +67,7 @@ void scheduler_next(struct thread_context *context) {
   if (new_thread_id != old_thread_id) {
     write_context(context, new_thread_id);
 
-    thread_management->active_thread_id = new_thread_id;
+    t_management->active_thread_id = new_thread_id;
   }
 }
 
@@ -77,9 +77,9 @@ void scheduler_next(struct thread_context *context) {
  * @param idle_fun Function to run when no other thread is ready to run.
  */
 void scheduler_init(int (*idle_fun)()) {
-  thread_management->active_thread_id = -1;
-  thread_management->last_created_id = -1;
-  thread_management->time_counter = 0;
+  t_management->active_thread_id = -1;
+  t_management->last_created_id = -1;
+  t_management->time_counter = 0;
 
   create_idle_thread(idle_fun);
 }
@@ -89,7 +89,7 @@ void scheduler_init(int (*idle_fun)()) {
  * exceeded.
  */
 void scheduler_count_time() {
-  struct thread_management *tm = thread_management;
+  thread_management *tm = t_management;
   unsigned int last_time = tm->time_counter;
   tm->time_counter += st_get_intervall();
 
@@ -114,8 +114,8 @@ void scheduler_count_time() {
  * @param thread_id Id of the thread to execute.
  * @param context Pointer to the context to write to.
  */
-void scheduler_switch(unsigned int thread_id, struct thread_context *context) {
-  unsigned int current_thread_id = thread_management->active_thread_id;
+void scheduler_switch(unsigned int thread_id, thread_context *context) {
+  unsigned int current_thread_id = t_management->active_thread_id;
 
   // save old thread's context to its tcb
   // but only if they are given and the thread is active (not finished)
@@ -126,5 +126,5 @@ void scheduler_switch(unsigned int thread_id, struct thread_context *context) {
   tcbs[current_thread_id].status = THREAD_READY;
 
   write_context(context, thread_id);
-  thread_management->active_thread_id = thread_id;
+  t_management->active_thread_id = thread_id;
 }

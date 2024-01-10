@@ -14,7 +14,7 @@ void undef_handler(unsigned int registers[16]) {
  * @param number SWI number
  * @param context The currently running thread's context.
  */
-void swi_handler(unsigned int number, struct thread_context *context) {
+void swi_handler(unsigned int number, thread_context *context) {
   // print("SWI (no. %d) at %p\n\r", number, (void *)(context[2] - 4));
   sys_call_handler(number, context);
 

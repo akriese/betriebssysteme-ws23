@@ -7,7 +7,7 @@
 extern char _ivt_start[];
 extern char _ivt_end[];
 
-extern void _set_cpu_mode_stack(enum cpu_mode mode, unsigned int stack_size);
+extern void _set_cpu_mode_stack(cpu_mode mode, unsigned int stack_size);
 
 void setup_kernel(void) {
   // init stacks for different cpmodes

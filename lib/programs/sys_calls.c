@@ -7,13 +7,13 @@
 #include <thread.h>
 #include <util.h>
 
-struct print_thread_info {
+typedef struct print_thread_info {
   unsigned int sleep_or_repeat;
   char c;
   char free; // set to 1 (freed) by print threads
-};
+} print_thread_info;
 
-struct print_thread_info thread_info_buffer[MAX_NUM_THREADS];
+print_thread_info thread_info_buffer[MAX_NUM_THREADS];
 
 static int started_threads_counter = 0;
 static int sleep_time = 500;
@@ -27,7 +27,7 @@ static int million_computation_cycles = 200;
  * @return 0
  */
 int print_char_repeatedly_with_computation(void *input) {
-  struct print_thread_info *info = (struct print_thread_info *)input;
+  print_thread_info *info = (print_thread_info *)input;
   const char x = info->c;
   const unsigned int compute_repititions = info->sleep_or_repeat;
   info->free = 1;
@@ -53,7 +53,7 @@ int print_char_repeatedly_with_computation(void *input) {
  * @return 0
  */
 int print_char_repeatedly_with_sleep(void *input) {
-  struct print_thread_info *info = (struct print_thread_info *)input;
+  print_thread_info *info = (print_thread_info *)input;
   const char x = info->c;
   const unsigned int sleep_duration = info->sleep_or_repeat;
 
@@ -91,7 +91,7 @@ int input_callback(char c) {
     return 1;
   }
 
-  struct print_thread_info *thread_info =
+  print_thread_info *thread_info =
       &thread_info_buffer[started_threads_counter % MAX_NUM_THREADS];
 
   // lock this block from being accessed by another call of this function
