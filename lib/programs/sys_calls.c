@@ -18,6 +18,7 @@ print_thread_info thread_info_buffer[MAX_NUM_THREADS];
 static int started_threads_counter = 0;
 static int sleep_time = 500;
 static int million_computation_cycles = 200;
+const int PRINT_TIMES = 10;
 
 /**
  * @brief Prints a char repeatedly with some computation inbetween.
@@ -33,7 +34,7 @@ int print_char_repeatedly_with_computation(void *input) {
   info->free = 1;
 
   // print the character 6 times with small pauses
-  volatile int c = 6;
+  volatile int c = PRINT_TIMES;
   while (c-- > 0) {
     print("%c", x);
     volatile int i;
@@ -61,7 +62,7 @@ int print_char_repeatedly_with_sleep(void *input) {
   info->free = 1;
 
   // print the character 6 times sleeping a short time inbetween
-  volatile int c = 6;
+  volatile int c = PRINT_TIMES;
   while (c-- > 0) {
     print("%c", x);
 
