@@ -1,10 +1,8 @@
 #include <dbgu.h>
-#include <mem_layout.h>
 #include <print.h>
 #include <scheduler.h>
-#include <sys_call.h>
+#include <shrine_os_lib.h>
 #include <system.h>
-#include <thread.h>
 #include <util.h>
 
 typedef struct print_thread_info {

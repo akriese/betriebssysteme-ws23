@@ -21,7 +21,7 @@ OBJ = driver/dbgu.o
 OBJ += lib/print.o lib/util.o lib/mem.o lib/thread.o lib/scheduler.o
 OBJ += lib/programs/dbgu.o lib/programs/exceptions.o lib/programs/interrupts.o
 OBJ += lib/programs/threads.o lib/programs/sys_calls.o
-OBJ += lib/sys_call.o
+OBJ += lib/sys_call/handling.o lib/sys_call/swi.o
 
 OBJ += system/main.o system/start.o system/memory_controller.o system/exceptions.o
 OBJ += system/timer.o system/interrupt.o
