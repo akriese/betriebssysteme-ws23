@@ -1,3 +1,4 @@
+#include "sys_call.h"
 #include <dbgu.h>
 #include <print.h>
 #include <util.h>
@@ -107,7 +108,7 @@ int get_line(char *buffer, unsigned int max_length) {
       return -1;
     }
 
-    char c = dbgu_grab_char();
+    char c = sys_call_read_char();
     if (c == 13 || c == 10) {
       buffer[counter] = '\0';
       print("\n\r");
