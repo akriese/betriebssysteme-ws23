@@ -27,6 +27,7 @@ void scheduler_next(thread_context *context) {
   if (old_thread_id == -1) {
     write_context(context, idle_id);
     t_management->active_thread_id = idle_id;
+    t_management->last_scheduled_thread = idle_id;
     return;
   }
 
@@ -44,7 +45,8 @@ void scheduler_next(thread_context *context) {
 
   // start searching the next available thread at the next position
   // This is essentially leads to a round robin scheduling
-  int new_thread_id = (old_thread_id + 1) % MAX_NUM_THREADS;
+  int new_thread_id =
+      (t_management->last_scheduled_thread + 1) % MAX_NUM_THREADS;
 
   // select next available thread to run
   // iterate as long as the thread with the id is:
@@ -68,6 +70,7 @@ void scheduler_next(thread_context *context) {
     write_context(context, new_thread_id);
 
     t_management->active_thread_id = new_thread_id;
+    t_management->last_scheduled_thread = new_thread_id;
   }
 }
 
@@ -127,4 +130,5 @@ void scheduler_switch(unsigned int thread_id, thread_context *context) {
 
   write_context(context, thread_id);
   t_management->active_thread_id = thread_id;
+  t_management->last_scheduled_thread = current_thread_id;
 }

@@ -23,6 +23,7 @@ typedef struct thread_management {
   int active_thread_id; // id of the currently running thread
   unsigned int last_created_id;
   unsigned int time_counter;
+  unsigned int last_scheduled_thread;
 } thread_management;
 
 typedef struct thread_context {
