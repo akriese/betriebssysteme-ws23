@@ -77,12 +77,11 @@ void write_char(char c) { dbgu->thr = c; }
  */
 char dbgu_getc() {
   // wait for new character in ring buffer
-  unsigned int *c;
-  do {
-    c = ring_buffer_get(receive_buffer);
-  } while (c == 0);
+  while (!ring_buffer_available(receive_buffer)) {
+  }
 
-  return *(char *)c;
+  unsigned int c = ring_buffer_get(receive_buffer);
+  return (char)c;
 }
 
 /*

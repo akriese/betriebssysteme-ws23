@@ -47,15 +47,14 @@ void ring_buffer_put(volatile ring_buffer *b, unsigned int element) {
 }
 
 /**
- * Returns 0 if there is no new element in the buffer.
- * Otherwise returns the pointer to the object to get.
+ * Returns the next object of the buffer.
+ *
+ * Assumes that a next item is available.
+ * If not, the returned value will be unexpected and the internal pointers
+ * are broken.
  */
-unsigned int *ring_buffer_get(volatile ring_buffer *b) {
-  if (!ring_buffer_available(b)) {
-    return 0;
-  }
-
-  unsigned int *element = b->buffer + b->next_out;
+unsigned int ring_buffer_get(volatile ring_buffer *b) {
+  unsigned int element = *(b->buffer + b->next_out);
   b->next_out = (b->next_out + 1) % b->length;
 
   return element;
