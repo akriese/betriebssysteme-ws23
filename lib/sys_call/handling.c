@@ -24,6 +24,9 @@ void sys_call_handler(unsigned int number, thread_context *context) {
   case SYSCALL_NUM_THREAD_CREATE:
     registers[0] =
         thread_create((int (*)(void *))registers[0], (void *)registers[1]);
+    if (scheduler_count_ready() == 1) {
+      scheduler_next(context);
+    }
     break;
   case SYSCALL_NUM_THREAD_SLEEP:
     thread_sleep(registers[0]);

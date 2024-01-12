@@ -74,6 +74,17 @@ void scheduler_next(thread_context *context) {
   }
 }
 
+unsigned int scheduler_count_ready() {
+  int c = 0, i;
+
+  for (i = 0; i < MAX_NUM_THREADS; ++i) {
+    if (tcbs[i].status == THREAD_READY)
+      c++;
+  }
+
+  return c;
+}
+
 /**
  * @brief Initialize the scheduler data structures and create the idle thread.
  *
