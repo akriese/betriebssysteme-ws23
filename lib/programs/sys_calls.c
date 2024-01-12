@@ -120,41 +120,10 @@ int input_callback(char c) {
 }
 
 /**
- * @brief Runs in an endless loop and listens on input characters.
- * These are forwarded to the actual input callback.
- * This is supposed to be a user application as it only uses syscalls
- * to execute kernel functions.
- *
- * @param __unused Unused
- * @return 0
- */
-int thread_starter(void *__unused) {
-  print("Type characters to start threads:\n\r"
-        "- Upper case for actively waiting (computation)\n\r"
-        "- Lower case for passively waiting (sleep)\n\r"
-        "- ENTER for a linebreak\n\r\n\r");
-
-  while (1) {
-    char c = sys_call_read_char();
-
-    // print newline if the user wants to have a line break
-    if (c == 13 || c == 10) {
-      print("\n\r");
-      continue;
-    }
-
-    input_callback(c);
-  }
-
-  sys_call_exit_thread();
-  return 0;
-}
-
-/**
  * @brief The example program to execute threads with syscalls.
  * This has to set up interrupts, system timer, dbgu and the scheduler.
- * In the end, the thread_starter function is used to create a 'main' thread,
- * which is again spawning other threads (print threads).
+ * This thread starts other threads (print threads) as it listens on keyboard
+ * input.
  *
  * @return 0
  */
@@ -168,20 +137,6 @@ int sys_call_application() {
       "Enter the number of computation cycles between prints (in millions)!",
       million_computation_cycles);
 
-  // initialize the dbgu and enable its interrupts
-  dbgu_initialize();
-
-  // install handler for system interrupts (dbgu and system timer, currently)
-  init_sys_interrupts();
-
-  // initialize the scheduler
-  scheduler_init(idling);
-
-  // enable system timer interrupts and set time
-  st_activate_pits(intervall);
-
-  cpsr_enable_interrupts();
-
   print("The application starts now!\n\r");
 
   // mark all thread infos as free before usage
@@ -190,8 +145,32 @@ int sys_call_application() {
     thread_info_buffer[i].free = 1;
   }
 
-  // create the thread spawning thread, the actual application
-  sys_call_create_thread(thread_starter, 0);
+  print("Type characters to start threads:\n\r"
+        "- Upper case for actively waiting (computation)\n\r"
+        "- Lower case for passively waiting (sleep)\n\r"
+        "- ENTER for a linebreak\n\r\n\r");
 
+  // use a custom idle function
+  sys_call_set_idle_function(idling);
+
+  /**
+   * Runs in an endless loop and listens on input characters.
+   * These are forwarded to the actual input callback.
+   * This is supposed to be a user application as it only uses syscalls
+   * to execute kernel functions.
+   */
+  while (1) {
+    char c = sys_call_read_char();
+
+    // print newline if the user wants to have a line break
+    if (c == 13 || c == 10) {
+      print("\n\r");
+      continue;
+    }
+
+    input_callback(c);
+  }
+
+  sys_call_exit_thread();
   return 0;
 }

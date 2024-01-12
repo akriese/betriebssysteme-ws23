@@ -1,35 +1,30 @@
-#include <dbgu.h>
 #include <print.h>
+#include <shrine_os_lib.h>
 #include <system.h>
-
-extern void cpsr_enable_interrupts();
 
 void timer_interrupt_printer() { print("!\n\r"); }
 
+/**
+ * @brief Reacts to system interrupts.
+ *
+ * Prints '!' (plus newline) on system timer IRQ and the typed letter 40x when
+ * the DBGU receives a character.
+ *
+ * ATTENTION: This program was first introduced in `u03`. Since then, the OS has
+ * undergone some changes which broke it (syscalls, etc.).
+ * Thus, the program has been altered to accomodate for those changes.
+ * Check out the git tag `u03` to see the actual implementation.
+ */
 int interrupt_program() {
   print("start of the initialization\n\r");
 
-  // initialize the dbgu and enable its interrupts
-  dbgu_initialize();
-
-  // activate the system timer and enable its interrupts
-  st_activate_pits(1000); // interrupt about every second
-
-  // install asm handler for system interrupts
-  init_sys_interrupts();
-
-  // initialize the IRQ routines for receiving dbgu chars and system timer fires
-  register_interrupt_routines(DBGU_RECEIVE_HANDLER,
-                              dbgu_receive_interrupt_handler);
-  register_interrupt_routines(SYSTEM_TIMER_HANDLER, timer_interrupt_printer);
-
-  // enable interrupts in the cpu
-  cpsr_enable_interrupts();
+  // initialize the IRQ routines for receiving system timer fires
+  sys_call_register_irq_callback(SYSTEM_TIMER_HANDLER, timer_interrupt_printer);
 
   print("setup done!\n\r");
 
   while (1) {
-    char c = dbgu_getc();
+    char c = sys_call_read_char();
 
     volatile int i; // volatile so it is not optimized away
     for (i = 0; i < 40; i++) {
