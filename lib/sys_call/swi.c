@@ -57,3 +57,11 @@ void sys_call_register_irq_callback(unsigned int callback_id,
                      "r"(fun)
                    : "r14");
 }
+
+void sys_call_st_set_pits_intervall(unsigned int ms) {
+  __SWI_IN(SYSCALL_NUM_ST_SET_PITS_INTERVALL, "r"(ms));
+}
+
+void sys_call_set_idle_function(int (*idle_fun)()) {
+  __SWI_IN(SYSCALL_NUM_SET_IDLE_FUNCTION, "r"(idle_fun));
+}

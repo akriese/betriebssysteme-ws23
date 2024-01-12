@@ -27,6 +27,8 @@ int st_interrupt_active();
 
 int st_get_intervall();
 
+void st_set_intervall(unsigned int ms);
+
 void init_sys_interrupts();
 
 void register_interrupt_routines(interrupt_handler_routines routine,

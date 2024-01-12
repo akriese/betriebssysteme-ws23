@@ -87,6 +87,8 @@ void scheduler_init(int (*idle_fun)()) {
   create_idle_thread(idle_fun);
 }
 
+void scheduler_set_idle_fun(int (*idle_fun)()) { create_idle_thread(idle_fun); }
+
 /**
  * @brief Count up the system time and wake up threads whose wakeup time was
  * exceeded.

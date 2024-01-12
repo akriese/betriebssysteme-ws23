@@ -48,6 +48,12 @@ void sys_call_handler(unsigned int number, thread_context *context) {
   case SYSCALL_NUM_REGISTER_IRQ_CALLBACK:
     register_interrupt_routines(registers[0], (void (*)(void *))registers[1]);
     break;
+  case SYSCALL_NUM_ST_SET_PITS_INTERVALL:
+    st_set_intervall(registers[0]);
+    break;
+  case SYSCALL_NUM_SET_IDLE_FUNCTION:
+    scheduler_set_idle_fun((int (*)())registers[0]);
+    break;
   default:
     print("There is currently no handler defined for SWI #%d\n\r", number);
   }

@@ -35,6 +35,15 @@ unsigned int intervall_to_ms(unsigned int intervall) {
   return intervall * 1000 / 32767;
 }
 
+void st_set_intervall(unsigned int ms) {
+  unsigned int intervall = ms_to_intervall(ms);
+  if (intervall > 0xffff) {
+    print("Reducing the intervall down to %d (max ms=2000)\n\r", 0xffff);
+    intervall = 0xffff;
+  }
+  st->pimr = intervall; // set the time
+}
+
 /*
  * Time can be a maximum clock cycles of 65535.
  *
@@ -42,13 +51,8 @@ unsigned int intervall_to_ms(unsigned int intervall) {
  *
  */
 void st_activate_pits(unsigned short ms) {
-  unsigned int intervall = ms_to_intervall(ms);
-  if (intervall > 0xffff) {
-    print("Reducing the intervall down to %d (max ms=2000)\n\r", 0xffff);
-    intervall = 0xffff;
-  }
-  st->pimr = intervall; // set the time
-  st->ier = 1 << 0;     // set the bit for the PITS interrupt
+  st->ier = 1 << 0; // set the bit for the PITS interrupt
+  st_set_intervall(ms);
 }
 
 /**
