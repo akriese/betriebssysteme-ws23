@@ -15,6 +15,18 @@ void write_context(thread_context *context, unsigned int thread_id) {
   memcpy(new_ctx, context, sizeof(thread_context));
 }
 
+int __idle_fun(void *__unused) {
+  // simply doing an infinite loop will lead to an assembly of one instruction
+  // which leads to weird behaviour when the thread is started again.
+  // That is why, we insert this dummy variable here
+  volatile int j = 0;
+  while (1) {
+    j++;
+  }
+
+  return 0;
+}
+
 /**
  * @brief Replaces one thread context with the next thread's context
  *
@@ -90,12 +102,12 @@ unsigned int scheduler_count_ready() {
  *
  * @param idle_fun Function to run when no other thread is ready to run.
  */
-void scheduler_init(int (*idle_fun)()) {
+void scheduler_init() {
   t_management->active_thread_id = -1;
   t_management->last_created_id = -1;
   t_management->time_counter = 0;
 
-  create_idle_thread(idle_fun);
+  create_idle_thread(__idle_fun);
 }
 
 void scheduler_set_idle_fun(int (*idle_fun)()) { create_idle_thread(idle_fun); }

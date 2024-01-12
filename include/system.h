@@ -21,7 +21,7 @@ typedef enum interrupt_handler_routines {
 
 void mc_remap();
 
-void st_activate_pits(unsigned short ms);
+void st_activate_pits();
 
 int st_interrupt_active();
 

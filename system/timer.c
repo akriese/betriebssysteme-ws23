@@ -50,10 +50,7 @@ void st_set_intervall(unsigned int ms) {
  * As the clock speed is about 32kHz, this would be 2 seconds.
  *
  */
-void st_activate_pits(unsigned short ms) {
-  st->ier = 1 << 0; // set the bit for the PITS interrupt
-  st_set_intervall(ms);
-}
+void st_activate_pits() { st->ier = 1 << 0; }
 
 /**
  * @brief Checks if the PITS has an active interrupt.

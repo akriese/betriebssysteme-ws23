@@ -55,7 +55,4 @@ int main_thread(void *__unused) {
 int main() {
   // start main os thread
   sys_call_create_thread(main_thread, 0);
-
-  while (1) {
-  }
 }
