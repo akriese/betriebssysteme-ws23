@@ -1,4 +1,5 @@
 // include what you want to execute
+#include "sys_call.h"
 #include <dbgu.h>
 #include <example_programs.h>
 #include <print.h>
@@ -7,7 +8,7 @@
 
 #define N_PROGRAMS 5
 
-int main() {
+int main_thread(void *__unused) {
   print("Welcome to shrineOS!\n\n\r");
   print("Here are some example programs to run:\n\r");
 
@@ -22,8 +23,6 @@ int main() {
   for (i = 0; i < N_PROGRAMS; ++i) {
     print("%d: %s\n\r", i + 1, descriptions[i]);
   }
-
-  dbgu_enable();
 
   int choice = get_number("Pick an example procedure to run", N_PROGRAMS);
 
@@ -49,5 +48,14 @@ int main() {
     return sys_call_application();
   }
 
+  sys_call_exit_thread();
   return 1;
+}
+
+int main() {
+  // start main os thread
+  sys_call_create_thread(main_thread, 0);
+
+  while (1) {
+  }
 }
