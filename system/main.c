@@ -52,7 +52,7 @@ int main_thread(void *__unused) {
   return 1;
 }
 
-int main() {
+void main() {
   // start main os thread
   sys_call_create_thread(main_thread, 0);
 }

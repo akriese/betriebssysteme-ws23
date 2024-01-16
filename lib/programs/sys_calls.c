@@ -131,6 +131,9 @@ int sys_call_application() {
   // get some run settings concerning time intervalls form the user
   int intervall = get_number(
       "Enter the intervall of thread switches [in ms] and press ENTER", 100);
+
+  sys_call_st_set_pits_intervall(intervall);
+
   sleep_time =
       get_number("Enter the sleep duration [in ms] for threads!", sleep_time);
   million_computation_cycles = get_number(
