@@ -24,4 +24,6 @@ char dbgu_grab_char();
 
 void dbgu_enable();
 
+int dbgu_has_next();
+
 #endif // !_DBGU_H_

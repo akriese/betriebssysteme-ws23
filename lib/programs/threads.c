@@ -1,8 +1,6 @@
-#include "system.h"
-#include <dbgu.h>
-#include <mem_layout.h>
 #include <print.h>
-#include <scheduler.h>
+#include <shrine_os_lib.h>
+#include <system.h>
 #include <thread.h>
 #include <util.h>
 
@@ -22,13 +20,11 @@ int print_char_repeatedly(void *input) {
   return 0;
 }
 
-char *const thread_char_buffer =
-    (char *)_INTERNAL_DBGU_THREAD_INPUT_BUFFER_START;
-
+static char thread_char_buffer[MAX_NUM_THREADS];
 static int started_threads_counter = 0;
 
 void create_char_print_thread() {
-  char c = dbgu_grab_char();
+  char c = sys_call_read_char();
 
   int create_result = thread_create(
       print_char_repeatedly, thread_char_buffer + started_threads_counter);
@@ -38,63 +34,29 @@ void create_char_print_thread() {
   }
 }
 
-int idling() {
-  int c = 0;
-  while (1) {
-    print("idle... (%d)   \r", c++);
-    volatile int i;
-    for (i = 0; i < 300000000; i++) {
-    }
-  }
-}
+void schedule_on_timer_irq(thread_context *context) { print("!"); }
 
-void schedule_on_timer_irq(void *context) {
-  print("!");
-  scheduler_next(context);
-}
-
+/**
+ * ATTENTION: In the task for this example it was asked to print a newline
+ * for every context switch. Since u05, this was turned of in the
+ * scheduler_next() function. We didnt implement any other way to print the
+ * newline without lots of restructuring of code. Also since in u05 syscalls are
+ * used and the whole interrupt initialization is moved to the OS setup, we now
+ * use syscalls here now too. Check out thre `u04` tag to see how the code
+ * before the change.
+ */
 int thread_program() {
-  const unsigned int default_intervall = 1000;
-  print("Enter the intervall of thread switches [in ms] and press ENTER "
-        "[default: %d]: > ",
-        default_intervall);
-
-  const unsigned int number_digits = 12;
-  char number_input_buffer[number_digits + 1];
-  int success = get_line(number_input_buffer, number_digits);
-
-  unsigned int intervall;
-  if (success == -1) {
-    number_input_buffer[number_digits] = '\0';
-    intervall = str_to_int(number_input_buffer);
-
-    print("WARNING: Number too long. Taking the first %d digits (%d)",
-          number_digits, intervall);
-  } else if (success == 1) {
-    intervall = default_intervall;
-  } else {
-    intervall = str_to_int(number_input_buffer);
-  }
-
+  int intervall = get_number(
+      "Enter the intervall of thread switches [in ms] and press ENTER", 1000);
   print("\n\rYou chose a switch intervall of %d ms\n\r", intervall);
 
-  // initialize the dbgu and enable its interrupts
-  dbgu_initialize();
-
-  // install handler for system interrupts (dbgu and system timer, currently)
-  init_sys_interrupts();
-
   // install routines for specific interrupt types
-  register_interrupt_routines(DBGU_RECEIVE_HANDLER, create_char_print_thread);
-  register_interrupt_routines(SYSTEM_TIMER_HANDLER, schedule_on_timer_irq);
-
-  // initialize the scheduler
-  scheduler_init(idling);
+  sys_call_register_irq_callback(DBGU_RECEIVE_HANDLER,
+                                 create_char_print_thread);
+  sys_call_register_irq_callback(SYSTEM_TIMER_HANDLER, schedule_on_timer_irq);
 
   // enable system timer interrupts and set time
-  st_activate_pits(intervall);
-
-  cpsr_enable_interrupts();
+  sys_call_st_set_pits_intervall(intervall);
 
   print("Type characters to start new threads that take turns to print the "
         "typed characters!\n\r");

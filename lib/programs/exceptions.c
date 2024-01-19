@@ -1,7 +1,15 @@
-#include <dbgu.h>
 #include <example_programs.h>
 #include <print.h>
+#include <shrine_os_lib.h>
 
+/**
+ * @brief Triggers different CPU exceptions on certain keypresses.
+ *
+ * ATTENTION: This program was first introduced in `u02`. Since then, the OS has
+ * undergone some changes which broke it (interrupts, syscalls, etc.).
+ * Thus, the program has been altered to accomodate for those changes.
+ * Check out the git tag `u02` to see the actual implementation.
+ */
 int exception_program() {
   print("Press the following keys for special actions:\n\r");
   print("q - exit this program\n\r");
@@ -11,7 +19,7 @@ int exception_program() {
   print("S - software interrupt (not implemented)\n\r");
 
   for (;;) {
-    char c = dbgu_grab_char();
+    char c = sys_call_read_char();
     print("You gave the char: %c (%x)\n\r", c, c);
 
     int break_loop = 0;

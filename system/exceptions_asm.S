@@ -1,5 +1,5 @@
-.extern get_banked_registers
-.extern set_banked_registers
+.extern add_context_to_stack
+.extern restore_context_from_stack
 
 .global _ivt_start
 _ivt_start:
@@ -23,25 +23,6 @@ jt_unhandled:   .word unhandled_trampoline
 .global _ivt_end
 _ivt_end:
 
-.global restore_context
-restore_context:
-        /* Stack looks like: (left is at higher address)
-        pc, r12, r11, r10, r9, r8, r7, r6, r5, r4, r3, r2, r1, r0, cpsr, pc, lr, sp*/
-
-        mov r0, #0x1f
-        bl set_banked_registers
-
-        @ load pc and cpsr
-        ldmfd sp!, {r0, r1}
-
-        msr spsr_c, r1
-        mov lr, r0
-
-        /* restore saved registers */
-        ldmfd sp!, {r0-r12}
-
-        movs pc, lr
-
 unhandled_trampoline:
         b _Lend
 
@@ -61,26 +42,22 @@ undef_trampoline:
 
         b _Lend
 
+/**
+* Software interrupt handler
+*
+* This function saves the current context (registers, cpsr), extracts the SWI number
+* and executes the C SWI handler.
+* The handler might change the context (e.g. thread switch).
+* Afterwards, the context is restored to proceed with the usual execution.
+*/
 swi_trampoline:
-        /* save important registers; IRQ mode lr is the usr mode's pc */
-        stmfd sp!, {r0-r12}
+        push {lr}
+        bl add_context_to_stack
 
-        /* disable interrupts */
-        @bl cpsr_disable_interrupts
+        @Stack after call: lr(user mode pc), lr, cpsr, pc, lr, sp, r12, r11,..., r1, r0(<-)
 
-        @ save saved psr
-        mrs r1, spsr
-        /* load saved pc to r0 */
-        mov r0, lr
-
-        /* push pc (lr), cpsr */
-        stmfd sp!, {r0, r1}
-
-        mov r0, #0x1f
-        bl get_banked_registers
-
-        @ retrieve lr; 2 ints (banked regsiters) have been written since lr was pushed
-        ldr lr, [sp, #8]
+        @ retrieve user mode pc
+        ldr lr, [sp, #(15*4)]
 
         @ load the causing swi instruction to retrieve the swi number
         ldr r0, [lr, #-4]
@@ -88,7 +65,7 @@ swi_trampoline:
         mov r1, sp @ context pointer
         bl swi_handler
 
-        b restore_context
+        b restore_context_from_stack
 
 prefabort_trampoline:
         /* save registers to stack */

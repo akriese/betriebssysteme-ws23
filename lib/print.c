@@ -1,12 +1,13 @@
 #include <stdarg.h> // for va_list etc., can be imported, as not OS specific
 
 #include <dbgu.h>
+#include <sys_call.h>
 
 /*
  * Some function that actually prints a character or sends it via the serial
  * interface
  */
-void _print(char c) { dbgu_putc(c); }
+void _print(char c) { sys_call_put_char(c); }
 
 void _printDecimal(const int d);
 void _printChar(const char c);
@@ -85,10 +86,20 @@ void _printDecimal(const int d) {
   digits[15] = '\0';
   int idx = 14;
 
+  int is_negative = d < 0;
+
+  if (is_negative) {
+    x = -x;
+  }
+
   do {
     digits[idx--] = lookup[x % 10];
     x /= 10;
-  } while (x > 0);
+  } while (x != 0);
+
+  if (is_negative) {
+    digits[idx--] = '-';
+  }
 
   _printString(digits + idx + 1);
 }

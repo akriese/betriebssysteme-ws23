@@ -13,7 +13,7 @@
 
 #define IER_RXRDY_BIT 0
 
-struct dbgu {
+typedef struct dbgu_mem {
   unsigned int cr;
   unsigned int __mr;
   unsigned int ier;
@@ -26,11 +26,11 @@ struct dbgu {
   unsigned int __reserved[(0x40 - 0x24) >> 2];
   unsigned int __cidr;
   unsigned int __exid;
-};
+} dbgu_mem;
 
-volatile struct dbgu *const dbgu = (struct dbgu *)DBGU;
+volatile dbgu_mem *const dbgu = (dbgu_mem *)DBGU;
 
-volatile struct ring_buffer *receive_buffer;
+volatile ring_buffer *receive_buffer;
 
 /*
  * Returns 1 if a bit at the given position at the given address is set.
@@ -76,17 +76,12 @@ void write_char(char c) { dbgu->thr = c; }
  * as that is done by the controller upon the register read instruction.
  */
 char dbgu_getc() {
-  // enable receive controller
-
   // wait for new character in ring buffer
-  unsigned int *c;
-  do {
-    c = ring_buffer_get(receive_buffer);
-  } while (c == 0);
+  while (!ring_buffer_available(receive_buffer)) {
+  }
 
-  return *(char *)c;
-  // disable read
-  // set_status(RXDIS_BIT);
+  unsigned int c = ring_buffer_get(receive_buffer);
+  return (char)c;
 }
 
 /*
@@ -142,6 +137,8 @@ void dbgu_receive_interrupt_handler() {
   char c = read_char();
   ring_buffer_put(receive_buffer, (unsigned int)c);
 }
+
+int dbgu_has_next() { return ring_buffer_available(receive_buffer); }
 
 char dbgu_grab_char() {
   while (!check_status(RXRDY_BIT)) {

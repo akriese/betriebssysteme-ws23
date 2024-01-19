@@ -1,3 +1,4 @@
+#include "sys_call.h"
 #include <dbgu.h>
 #include <print.h>
 #include <util.h>
@@ -107,7 +108,7 @@ int get_line(char *buffer, unsigned int max_length) {
       return -1;
     }
 
-    char c = dbgu_grab_char();
+    char c = sys_call_read_char();
     if (c == 13 || c == 10) {
       buffer[counter] = '\0';
       print("\n\r");
@@ -132,7 +133,18 @@ int get_line(char *buffer, unsigned int max_length) {
   return 0;
 }
 
+/**
+ * @brief Parse a string to a signed integer.
+ *
+ * @param s String to be parsed.
+ * @return Parsed number (can be negative)
+ */
 int str_to_int(char *s) {
+  int is_negative = *s == '-';
+
+  if (is_negative)
+    s++;
+
   int res = 0;
   while (*s) {
     res *= 10;
@@ -140,5 +152,75 @@ int str_to_int(char *s) {
     s++;
   }
 
-  return res;
+  return is_negative ? -res : res;
+}
+
+/**
+ * @brief Parses input from the dbgu as a number.
+ *
+ * @param prompt String that is used to prompt the user for a number.
+ * @param default_number Default to use if input is empty or otherwise invalid.
+ * @return The input number or default if not correctly parseable.
+ */
+int get_number(char *prompt, int default_number) {
+  print("%s [%d] > ", prompt, default_number);
+
+  const unsigned int number_digits = 12;
+  char number_input_buffer[number_digits + 1];
+  int success = get_line(number_input_buffer, number_digits);
+
+  int number;
+  if (success == -1) {
+    number_input_buffer[number_digits] = '\0';
+    number = str_to_int(number_input_buffer);
+
+    print("WARNING: Number too long. Taking the first %d digits (%d)",
+          number_digits, number);
+  } else if (success == 1) {
+    number = default_number;
+  } else {
+    number = str_to_int(number_input_buffer);
+  }
+
+  return number;
+}
+
+/**
+ * @brief checks if the given char is upper case
+ *
+ * @param c character to be checked.
+ * @return 1 if upper case, 0 if not
+ */
+int is_upper(char c) { return c >= 'A' && c <= 'Z'; }
+
+/**
+ * @brief checks if the given char is lower case
+ *
+ * @param c character to be checked.
+ * @return 1 if lower case, 0 if not
+ */
+int is_lower(char c) { return is_upper(c - ('a' - 'A')); }
+
+/**
+ * @brief Checks if the given char is a digit.
+ *
+ * @param c Character to be checked
+ * @return 1 if char is digit, 0 otherwise.
+ */
+int is_digit(char c) { return c >= '0' && c <= '9'; }
+
+/**
+ * @brief A function that prints something infinitely with some time inbetween.
+ */
+int idling() {
+  int c = 0;
+  while (1) {
+    // print("idle... (%d)   \r", c++);
+    print(".");
+    volatile int i;
+    for (i = 0; i < 100000000; i++) {
+    }
+  }
+
+  return 0;
 }
